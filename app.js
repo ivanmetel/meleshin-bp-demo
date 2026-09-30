@@ -38,7 +38,7 @@ function aggregate(srcRows) {
   const map = new Map();
   srcRows.forEach((r) => {
     const key = r.name + "||" + r.price.toFixed(2);
-    if (!map.has(key)) { map.set(key, { name: r.name, unit: r.unit, qty: 0, price: r.price, cost: 0, parts: [] }); order.push(key); }
+    if (!map.has(key)) { map.set(key, { name: r.name, unit: r.unit, qty: 0, price: r.price, cost: 0, info: r.info || "", parts: [] }); order.push(key); }
     const g = map.get(key);
     g.qty = round2(g.qty + r.qty);
     g.cost = round2(g.cost + round2(r.qty * r.price));
@@ -63,7 +63,7 @@ function assemble(manifest, variantKey) {
   const vres = applyVariant(ESTIMATE_ROWS, m, variantKey);
   const agg = aggregate(vres.rows);
 
-  const rows = agg.rows.map((r, i) => ({ n: i + 1, name: r.name, unit: r.unit, qty: r.qty, price: r.price, cost: r.cost, parts: r.parts }));
+  const rows = agg.rows.map((r, i) => ({ n: i + 1, name: r.name, unit: r.unit, qty: r.qty, price: r.price, cost: r.cost, info: r.info, parts: r.parts }));
   const itogo = round2(rows.reduce((s, r) => s + r.cost, 0));
   const relTotal = m.layout.related_table === "separate" ? relatedTotal(m) : 0;
   const materials = m.commerce.materials;
@@ -524,7 +524,7 @@ function build() {
 // агрегированные материалы, помещения с подсчётом по зонам.
 function estimateModel(a) {
   const mAgg = aggregate(MATERIALS_ROWS);
-  const materialsRows = mAgg.rows.map((r, i) => ({ n: i + 1, name: r.name, unit: r.unit, qty: r.qty, price: r.price, cost: r.cost, parts: r.parts }));
+  const materialsRows = mAgg.rows.map((r, i) => ({ n: i + 1, name: r.name, unit: r.unit, qty: r.qty, price: r.price, cost: r.cost, info: r.info, parts: r.parts }));
   const materialsTotal = round2(materialsRows.reduce((s, r) => s + r.cost, 0));
   const zones = [];
   ESTIMATE_ROWS.forEach((r) => { if (r.zone && !zones.includes(r.zone)) zones.push(r.zone); });
@@ -542,7 +542,7 @@ function estimateModel(a) {
 function decomposeRoom(rows, room) {
   const out = [];
   rows.forEach((r) => r.parts.forEach((p) => {
-    if (p.zone === room) out.push({ name: r.name, unit: r.unit, qty: p.qty, price: r.price, cost: round2(p.qty * r.price), zone: p.zone });
+    if (p.zone === room) out.push({ name: r.name, unit: r.unit, qty: p.qty, price: r.price, cost: round2(p.qty * r.price), info: r.info, zone: p.zone });
   }));
   return out.map((r, i) => Object.assign({ n: i + 1 }, r));
 }
@@ -554,7 +554,7 @@ function renderEstimate(a) {
   const matRows = room === "all" ? em.materialsRows : decomposeRoom(em.materialsRows, room);
 
   const rowHtml = (r) => '<div class="est-row"><div class="num">' + r.n + '</div><div class="name">' + esc(r.name) + '</div><div class="unit">' + esc(r.unit) + '</div><div class="qty tnum">' + fmtQty(r.qty) + '</div><div class="price tnum">' + fmtMoney(r.price) + '</div><div class="cost"><div class="tnum">' + fmtMoney(r.cost) + "</div>" +
-    (r.unit === "м²" ? '<div class="est-note">для ' + fmtQty(r.qty) + " м²</div>" : "") +
+    (r.info ? '<div class="est-note">' + esc(r.info) + "</div>" : "") +
     "</div></div>";
   const head = (kind) => '<div class="est-head"><div>#</div><div>' + (kind === "w" ? "Работа" : "Материал") + '</div><div>Ед.</div><div class="r">Кол&#8209;во</div><div class="r">Цена за ед., €</div><div class="r">Стоимость, €</div></div>';
   const block = (title, totalLabel, total, rows, kind) =>
@@ -570,9 +570,12 @@ function renderEstimate(a) {
   else if (STATE.screen === "works") blocks = block("Отделочные работы", "Итого за работы", a.itogo, worksRows, "w");
   else blocks = block("Отделочные материалы", "Итого за материалы", em.materialsTotal, matRows, "m");
 
-  return '<div class="est-wrap"><div class="est-tabs">' + tabs + "</div>" +
+  const roomsNav = '<div class="est-rooms"><span class="est-rooms-lbl">Помещение</span>' +
+    '<button data-room="all"' + (room === "all" ? ' class="active"' : "") + ">Все</button>" +
+    em.rooms.map((r) => '<button data-room="' + esc(r.name) + '"' + (room === r.name ? ' class="active"' : "") + ">" + esc(r.name) + '<span class="c">' + r.count + "</span></button>").join("") + "</div>";
+  return '<div class="est-wrap"><div class="est-tabs">' + tabs + "</div>" + roomsNav +
     '<div class="panel-dark' + (single ? " single" : "") + '">' + blocks + "</div>" +
-    '<div class="est-foot">Экраны сверху · помещения слева · итог — в шапке блока; формат чисел: пробел тысяч, запятая, 2 знака</div></div>';
+    '<div class="est-foot">Экраны и помещения — сверху; итог — в шапке блока; формат чисел: пробел тысяч, запятая, 2 знака</div></div>';
 }
 
 /* ============================================================
@@ -773,12 +776,7 @@ const BLOCK_ANCHOR = { chrome: "sec-open", manager: "sec-open", title: "sec-open
 
 function renderSide(a) {
   const m = STATE.manifest;
-  if (STATE.view === "estimate") {
-    const em = estimateModel(a);
-    const rooms = '<div class="item' + (STATE.room === "all" ? " active" : "") + '" data-room="all"><span class="name">Все</span><span class="c">' + a.rows.length + "</span></div>" +
-      em.rooms.map((r) => '<div class="item' + (STATE.room === r.name ? " active" : "") + '" data-room="' + esc(r.name) + '"><span class="name">' + esc(r.name) + '</span><span class="c">' + r.count + "</span></div>").join("");
-    return '<div class="group"><div class="h"><span>Помещение</span></div>' + rooms + "</div>";
-  }
+  if (STATE.view === "estimate") return "";
   const present = new Set(a.sections.flatMap((x) => x.blocks));
   const variants = Object.entries(m.variants).map(([k, v]) => {
     const active = STATE.variant === k;
@@ -817,7 +815,10 @@ function renderToolbar(a) {
 function renderAll() {
   const a = build();
   document.getElementById("hero").innerHTML = renderHero(a);
-  document.getElementById("side").innerHTML = renderSide(a);
+  const sideEl = document.getElementById("side");
+  sideEl.innerHTML = renderSide(a);
+  sideEl.style.display = STATE.view === "estimate" ? "none" : "";
+  document.querySelector(".d3-main").classList.toggle("no-side", STATE.view === "estimate");
   let viewHtml;
   if (STATE.view === "estimate") viewHtml = renderEstimate(a);
   else if (STATE.view === "doc") viewHtml = renderDoc(a);
@@ -845,7 +846,7 @@ function wire(a) {
   const root = document.getElementById("content");
   root.querySelectorAll("[data-view]").forEach((b) => b.addEventListener("click", () => { STATE.view = b.dataset.view; renderAll(); }));
   root.querySelectorAll("[data-screen]").forEach((b) => b.addEventListener("click", () => { STATE.screen = b.dataset.screen; renderAll(); }));
-  document.querySelectorAll("#side [data-room]").forEach((b) => b.addEventListener("click", () => { STATE.room = b.dataset.room; renderAll(); }));
+  root.querySelectorAll("[data-room]").forEach((b) => b.addEventListener("click", () => { STATE.room = b.dataset.room; renderAll(); }));
   root.querySelectorAll("[data-variant]").forEach((b) => b.addEventListener("click", () => { STATE.variant = b.dataset.variant; renderAll(); }));
   root.querySelectorAll("[data-block]").forEach((b) => b.addEventListener("click", () => {
     STATE.view = "doc";

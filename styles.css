@@ -209,6 +209,7 @@ li { margin: 4px 0; }
 
 /* ---------- Основная сетка: сайдбар + контент ---------- */
 .d3-main { display: grid; grid-template-columns: 264px 1fr; flex: 1; min-height: 0; }
+.d3-main.no-side { grid-template-columns: 1fr; }
 .d3-side { border-right: 1px solid var(--line); padding: 20px; overflow-y: auto; }
 .d3-side .group { margin-bottom: 22px; }
 .d3-side .group .h {
@@ -548,7 +549,7 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 /* Тёмная панель: градиент + виньетка (UI-спека: #2B2826 → #3D3734) */
 .panel-dark {
   display: grid;
-  grid-template-columns: 6fr 4fr;   /* работы ~60% · материалы ~40% */
+  grid-template-columns: minmax(0,6fr) minmax(0,4fr);   /* работы ~60% · материалы ~40% */
   gap: 26px;
   padding: 26px 28px;
   border-radius: 12px;
@@ -557,6 +558,23 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 }
 .panel-dark.single { grid-template-columns: 1fr; }
 .est-blk { min-width: 0; }
+.est-table { overflow-x: auto; }
+.est-rooms { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.est-rooms-lbl {
+  font-size: 11px; font-weight: 600; color: var(--ink-3);
+  text-transform: uppercase; letter-spacing: 0.08em; margin-right: 4px;
+}
+.est-rooms button {
+  padding: 7px 14px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 500;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  color: var(--ink-2);
+}
+.est-rooms button.active { background: var(--ink-1); color: #fff; border-color: var(--ink-1); font-weight: 600; }
+.est-rooms button .c { opacity: 0.6; font-size: 11px; margin-left: 5px; font-variant-numeric: tabular-nums; }
 .blk-head {
   display: flex;
   align-items: baseline;
