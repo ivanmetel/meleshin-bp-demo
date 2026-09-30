@@ -779,7 +779,7 @@ function renderSide(a) {
   const m = STATE.manifest;
   if (STATE.view === "estimate") {
     const em = estimateModel(a);
-    const rooms = '<div class="item' + (STATE.room === "all" ? " active" : "") + '" data-room="all"><span class="name">Все помещения</span><span class="c">' + a.rows.length + "</span></div>" +
+    const rooms = '<div class="item' + (STATE.room === "all" ? " active" : "") + '" data-room="all"><span class="name">Все</span><span class="c">' + a.rows.length + "</span></div>" +
       em.rooms.map((r) => '<div class="item' + (STATE.room === r.name ? " active" : "") + '" data-room="' + esc(r.name) + '"><span class="name">' + esc(r.name) + '</span><span class="c">' + r.count + "</span></div>").join("");
     return '<div class="group"><div class="h"><span>Помещение</span></div>' + rooms + "</div>";
   }
