@@ -49,7 +49,7 @@ li { margin: 4px 0; }
 .tnum { font-variant-numeric: tabular-nums; font-feature-settings: 'tnum'; }
 .mono { font-family: 'SF Mono', Menlo, Consolas, monospace; font-size: 0.92em; }
 
-.page { max-width: 1480px; margin: 0 auto; padding: 28px 40px 56px; }
+.page { max-width: 1640px; margin: 0 auto; padding: 28px 40px 56px; }
 
 /* ---------- Баннер демо ---------- */
 .sim-banner {
@@ -486,6 +486,9 @@ li { margin: 4px 0; }
   white-space: pre;
 }
 .mf-actions { margin-top: 14px; }
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 
 /* ---------- Вид: отчёт ---------- */
 .rep-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
@@ -569,8 +572,8 @@ li { margin: 4px 0; }
 
 .est-head, .est-row {
   display: grid;
-  grid-template-columns: 34px 1fr 118px 44px 72px 96px 118px;
-  gap: 10px;
+  grid-template-columns: 26px 1fr 36px 56px 70px 92px;
+  gap: 8px;
   align-items: center;
 }
 .est-head {
@@ -583,26 +586,17 @@ li { margin: 4px 0; }
   border-bottom: 1px solid rgba(255,255,255,0.14);
 }
 .est-head .r { text-align: right; }
+.est-head div:not(.r) { text-align: left; }
 .est-row { padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.07); }
 .est-row:last-child { border-bottom: none; }
 .est-row:hover { background: rgba(255,255,255,0.08); border-radius: 8px; }
-.est-row .num { font-family: 'SF Mono', Menlo, monospace; font-size: 10.5px; color: #A69F9A; }
-.est-row .name { color: #fff; font-size: 12.5px; font-weight: 400; line-height: 1.45; }
-.est-row .unit { color: #A69F9A; font-size: 11.5px; }
-.est-row .qty, .est-row .price { color: #fff; font-size: 12px; text-align: right; }
-.est-row .cost { text-align: right; color: #fff; font-size: 12.5px; font-weight: 500; }
+.est-row .num { font-family: 'SF Mono', Menlo, monospace; font-size: 10.5px; color: #A69F9A; text-align: left; }
+.est-row .name { color: #fff; font-size: 12.5px; font-weight: 400; line-height: 1.45; text-align: left; }
+.est-row .unit { color: #A69F9A; font-size: 11.5px; text-align: left; }
+.est-row .qty, .est-row .price { color: #fff; font-size: 12px; text-align: right; white-space: nowrap; }
+.est-row .cost { text-align: right; color: #fff; font-size: 12.5px; font-weight: 500; white-space: nowrap; }
 .est-row .cost .tnum { font-variant-numeric: tabular-nums; }
 .est-note { font-size: 10px; font-weight: 300; color: #A69F9A; margin-top: 3px; }
-.zchip {
-  display: inline-block;
-  padding: 2px 8px;
-  margin: 1px 3px 1px 0;
-  border-radius: 5px;
-  font-size: 10px;
-  color: #E7E1DB;
-  background: rgba(255,255,255,0.10);
-  white-space: nowrap;
-}
 
 /* ---------- Подвал страницы ---------- */
 .page-footer {
@@ -617,6 +611,22 @@ li { margin: 4px 0; }
 }
 
 /* ---------- Адаптив ---------- */
+@media (max-width: 1300px) {
+  .panel-dark { grid-template-columns: 1fr; }
+}
+
+/* ---------- Печать / сохранение PDF ---------- */
+@media print {
+  body { background: #fff; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .sim-banner, .d3-top, .d3-hero, .d3-side, .d3-toolbar, .page-footer { display: none !important; }
+  .page { padding: 0; max-width: none; }
+  .app { box-shadow: none; border-radius: 0; }
+  .d3-main { display: block; }
+  .d3-content { padding: 0; overflow: visible; }
+  .doc-slide { border: none; box-shadow: none; border-radius: 0; padding: 8px 0; page-break-after: always; break-after: page; }
+  .doc-slide:last-child { page-break-after: auto; break-after: auto; }
+}
+
 @media (max-width: 1100px) {
   .page { padding: 20px 18px 40px; }
   .d3-hero { grid-template-columns: 1fr; }
@@ -625,8 +635,7 @@ li { margin: 4px 0; }
   .d3-side { display: none; }
   .mf-grid, .rep-grid { grid-template-columns: 1fr; }
   .panel-dark { grid-template-columns: 1fr; padding: 18px; }
-  .est-head, .est-row { grid-template-columns: 26px 1fr 34px 56px 80px 100px; }
-  .est-row .zone, .est-head div:nth-child(3) { display: none; }
+  .est-head, .est-row { grid-template-columns: 22px 1fr 30px 48px 62px 84px; }
   .doc-grid { grid-template-columns: 1fr; }
   .doc-hero img { height: 180px; }
   .bp-head, .bp-row { grid-template-columns: 34px 1fr 44px 62px 84px 84px; font-size: 12px; }

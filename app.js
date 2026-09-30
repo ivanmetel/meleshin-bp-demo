@@ -553,14 +553,10 @@ function renderEstimate(a) {
   const worksRows = room === "all" ? a.rows : decomposeRoom(a.rows, room);
   const matRows = room === "all" ? em.materialsRows : decomposeRoom(em.materialsRows, room);
 
-  const rowHtml = (r) => '<div class="est-row"><div class="num">' + r.n + '</div><div class="name">' + esc(r.name) + '</div><div class="zone">' +
-    (room === "all"
-      ? (r.parts || [{ zone: r.zone }]).map((p) => '<span class="zchip">' + esc(p.zone) + "</span>").join("")
-      : '<span class="zchip">' + esc(r.zone) + "</span>") +
-    '</div><div class="unit">' + esc(r.unit) + '</div><div class="qty tnum">' + fmtQty(r.qty) + '</div><div class="price tnum">' + fmtMoney(r.price) + '</div><div class="cost"><div class="tnum">' + fmtMoney(r.cost) + " €</div>" +
+  const rowHtml = (r) => '<div class="est-row"><div class="num">' + r.n + '</div><div class="name">' + esc(r.name) + '</div><div class="unit">' + esc(r.unit) + '</div><div class="qty tnum">' + fmtQty(r.qty) + '</div><div class="price tnum">' + fmtMoney(r.price) + '</div><div class="cost"><div class="tnum">' + fmtMoney(r.cost) + "</div>" +
     (r.unit === "м²" ? '<div class="est-note">для ' + fmtQty(r.qty) + " м²</div>" : "") +
     "</div></div>";
-  const head = (kind) => '<div class="est-head"><div>#</div><div>' + (kind === "w" ? "Работа" : "Материал") + '</div><div>Помещение</div><div>Ед.</div><div class="r">Кол&#8209;во</div><div class="r">Цена за ед., €</div><div class="r">Стоимость, €</div></div>';
+  const head = (kind) => '<div class="est-head"><div>#</div><div>' + (kind === "w" ? "Работа" : "Материал") + '</div><div>Ед.</div><div class="r">Кол&#8209;во</div><div class="r">Цена за ед., €</div><div class="r">Стоимость, €</div></div>';
   const block = (title, totalLabel, total, rows, kind) =>
     '<div class="est-blk"><div class="blk-head"><span class="blk-name">' + title + '</span><span class="blk-total"><span class="lbl">' + totalLabel + ':</span> <span class="tnum">' + fmtMoney(total) + " €</span></span></div>" +
     (room !== "all" ? '<div class="est-filter">Помещение: ' + esc(room) + " · " + rows.length + " поз. · " + fmtMoney(round2(rows.reduce((s, r) => s + r.cost, 0))) + " €</div>" : "") +
@@ -660,7 +656,7 @@ function renderDoc(a) {
    Представления: markdown, манифест, отчёт
    ============================================================ */
 function renderMd(a) {
-  return '<div class="md-wrap"><div class="md-bar"><span class="md-name">' + a.filename + '</span><span></span><span><button class="btn ghost sm" id="btn-copy-md">Копировать</button> <button class="btn primary sm" id="btn-dl-md">Скачать .md</button></span></div><pre class="md-pre">' + esc(a.md) + "</pre></div>";
+  return '<div class="md-wrap"><div class="md-bar"><span class="md-name">' + a.filename + "</span></div><pre class=\"md-pre\">" + esc(a.md) + "</pre></div>";
 }
 
 function renderReport(a) {
@@ -704,11 +700,11 @@ function renderManifest() {
     "</div>" +
     '<div class="mf-card"><div class="mf-h">Коммерция — значения Ивана</div>' +
     f("Род цены", '<select data-path="commerce.price.kind"><option value="final"' + (m.commerce.price.kind === "final" ? " selected" : "") + '>final</option><option value="estimate"' + (m.commerce.price.kind === "estimate" ? " selected" : "") + ">estimate</option></select>") +
-    f("Черновые материалы, €", '<input type="number" step="0.01" data-path="commerce.materials" value="' + m.commerce.materials + '">') +
-    f("Предоплата, €", '<input type="number" step="0.01" data-path="commerce.predoplata" value="' + m.commerce.predoplata + '">') +
-    f("Второй платёж, €", '<input type="number" step="0.01" data-path="commerce.second_payment.amount" value="' + m.commerce.second_payment.amount + '">') +
-    f("Срок, значение", '<input type="number" data-path="commerce.term.value" value="' + m.commerce.term.value + '">') +
-    f("Срок, единица", '<input data-path="commerce.term.unit" value="' + esc(m.commerce.term.unit) + '">') +
+    f("Черновые материалы, €", '<input data-path="commerce.materials" value="' + m.commerce.materials + '">') +
+    f("Предоплата, €", '<input data-path="commerce.predoplata" value="' + m.commerce.predoplata + '">') +
+    f("Второй платёж, €", '<input data-path="commerce.second_payment.amount" value="' + m.commerce.second_payment.amount + '">') +
+    f("Срок, значение", '<input data-path="commerce.term.value" value="' + m.commerce.term.value + '">') +
+    f("Срок, единица", '<select data-path="commerce.term.unit">' + ["недель", "дней", "месяцев"].map((u) => '<option' + (m.commerce.term.unit === u ? " selected" : "") + ">" + u + "</option>").join("") + "</select>") +
     f("Пункт об отчётности (длинные проекты)", '<input type="checkbox" data-path="commerce.reporting"' + (m.commerce.reporting ? " checked" : "") + ">") +
     "</div>" +
     '<div class="mf-card"><div class="mf-h">Макет</div>' +
@@ -753,7 +749,7 @@ function renderHero(a) {
     '<div class="sub">+ 19% VAT · ' + a.rows.length + " позиций · таблица работ + сопутствующие + черновые материалы</div></div>" +
     '<div class="cta-row">' +
     (st === "sent" ? '<button class="btn primary" id="btn-approve">Согласовать</button>' : '<button class="btn ghost" disabled>Согласовано</button>') +
-    '<button class="btn ghost" id="btn-export">Выгрузить .md</button>' +
+    '<button class="btn ghost" id="btn-pdf">Сохранить PDF</button>' +
     "</div></div></div>"
   );
 }
@@ -845,18 +841,6 @@ function setPath(obj, path, value) {
   else o[key] = value;
 }
 
-function download(a) {
-  const blob = new Blob([a.md], { type: "text/markdown;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const el = document.createElement("a");
-  el.href = url;
-  el.download = a.filename;
-  document.body.appendChild(el);
-  el.click();
-  el.remove();
-  URL.revokeObjectURL(url);
-}
-
 function wire(a) {
   const root = document.getElementById("content");
   root.querySelectorAll("[data-view]").forEach((b) => b.addEventListener("click", () => { STATE.view = b.dataset.view; renderAll(); }));
@@ -902,12 +886,8 @@ function wire(a) {
   }));
   const approve = document.getElementById("btn-approve");
   if (approve) approve.addEventListener("click", () => { STATE.status = "agreed"; renderAll(); });
-  const exportBtn = document.getElementById("btn-export");
-  if (exportBtn) exportBtn.addEventListener("click", () => download(build()));
-  const dl = document.getElementById("btn-dl-md");
-  if (dl) dl.addEventListener("click", () => download(build()));
-  const copy = document.getElementById("btn-copy-md");
-  if (copy) copy.addEventListener("click", () => { if (navigator.clipboard) navigator.clipboard.writeText(build().md); copy.textContent = "Скопировано"; });
+  const pdf = document.getElementById("btn-pdf");
+  if (pdf) pdf.addEventListener("click", () => { STATE.view = "doc"; renderAll(); setTimeout(() => window.print(), 200); });
   const reset = document.getElementById("btn-reset");
   if (reset) reset.addEventListener("click", () => { STATE.manifest = clone(MANIFEST_DEFAULT); STATE.variant = "base"; renderAll(); });
 }
