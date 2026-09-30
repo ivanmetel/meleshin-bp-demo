@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Машина сборки КП — Meleshin OS · демо модели реализации</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css?v=1">
+</head>
+<body>
+
+<div class="page">
+  <div class="sim-banner">
+    <strong>Демо.</strong> Модель реализации ТЗ "BP auto-assembly" (30.09): оператор → машина → документ.
+    Объект 2699-Limassol-Apartment и все суммы вымышлены. Правки манифеста живут в памяти страницы до перезагрузки.
+  </div>
+
+  <div class="app">
+    <div class="d3-top">
+      <div class="brand"><div class="mark">M</div><span>Meleshin OS</span></div>
+      <div class="nav">
+        <span class="active">Кабинет клиента · Смета</span>
+      </div>
+      <div class="right">
+        <span class="chip accent">ТЗ 30.09 · BP auto-assembly</span>
+        <span class="lang"><span class="active">RU</span><span>·</span><span>EN</span></span>
+      </div>
+    </div>
+
+    <div id="hero"></div>
+
+    <div class="d3-main">
+      <aside class="d3-side" id="side"></aside>
+      <main class="d3-content" id="content"></main>
+    </div>
+  </div>
+
+  <div class="page-footer">
+    <span>Meleshin OS · модель реализации · сборка в браузере, без сервера</span>
+    <span class="mono">manifest → machine → document</span>
+  </div>
+</div>
+
+<script src="data.js?v=1"></script>
+<script src="app.js?v=1"></script>
+</body>
+</html>
