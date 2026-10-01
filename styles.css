@@ -585,7 +585,7 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
    числа — никогда. Горизонтальный скролл — запасной вариант ниже минимума. */
 .est-table {
   display: grid;
-  grid-template-columns: 26px minmax(160px, 2.2fr) 34px 52px max-content max-content minmax(0, 1fr);
+  grid-template-columns: 26px minmax(160px, 2.4fr) 34px 52px max-content max-content;
   column-gap: 7px;
   row-gap: 0;
   align-items: center;
@@ -616,7 +616,6 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 .est-row .unit { color: #A69F9A; font-size: 11.5px; text-align: left; }
 .est-row .qty, .est-row .price { color: #fff; font-size: 12px; text-align: right; white-space: nowrap; }
 .est-row .cost { text-align: right; color: #fff; font-size: 12.5px; font-weight: 500; white-space: nowrap; font-variant-numeric: tabular-nums; }
-.est-row .info { color: #A69F9A; font-size: 10.5px; font-weight: 300; line-height: 1.45; text-align: left; }
 
 /* ---------- Подвал страницы ---------- */
 .page-footer {
@@ -657,8 +656,6 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
   .panel-dark { grid-template-columns: 1fr; padding: 18px; }
   .est-body { grid-template-columns: 1fr; }
   .est-rooms-h { margin-top: 0; }
-  .est-table { grid-template-columns: 26px minmax(150px, 1fr) 34px 50px max-content max-content; }
-  .est-head div:nth-child(7), .est-row .info { display: none; }
   .doc-grid { grid-template-columns: 1fr; }
   .doc-hero img { height: 180px; }
   .bp-head, .bp-row { grid-template-columns: 34px 1fr 44px 62px 84px 84px; font-size: 12px; }

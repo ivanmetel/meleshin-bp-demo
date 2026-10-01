@@ -38,7 +38,7 @@ function aggregate(srcRows) {
   const map = new Map();
   srcRows.forEach((r) => {
     const key = r.name + "||" + r.price.toFixed(2);
-    if (!map.has(key)) { map.set(key, { name: r.name, unit: r.unit, qty: 0, price: r.price, cost: 0, info: r.info || "", parts: [] }); order.push(key); }
+    if (!map.has(key)) { map.set(key, { name: r.name, unit: r.unit, qty: 0, price: r.price, cost: 0, parts: [] }); order.push(key); }
     const g = map.get(key);
     g.qty = round2(g.qty + r.qty);
     g.cost = round2(g.cost + round2(r.qty * r.price));
@@ -63,7 +63,7 @@ function assemble(manifest, variantKey) {
   const vres = applyVariant(ESTIMATE_ROWS, m, variantKey);
   const agg = aggregate(vres.rows);
 
-  const rows = agg.rows.map((r, i) => ({ n: i + 1, name: r.name, unit: r.unit, qty: r.qty, price: r.price, cost: r.cost, info: r.info, parts: r.parts }));
+  const rows = agg.rows.map((r, i) => ({ n: i + 1, name: r.name, unit: r.unit, qty: r.qty, price: r.price, cost: r.cost, parts: r.parts }));
   const itogo = round2(rows.reduce((s, r) => s + r.cost, 0));
   const relTotal = m.layout.related_table === "separate" ? relatedTotal(m) : 0;
   const materials = m.commerce.materials;
@@ -524,7 +524,7 @@ function build() {
 // агрегированные материалы, помещения с подсчётом по зонам.
 function estimateModel(a) {
   const mAgg = aggregate(MATERIALS_ROWS);
-  const materialsRows = mAgg.rows.map((r, i) => ({ n: i + 1, name: r.name, unit: r.unit, qty: r.qty, price: r.price, cost: r.cost, info: r.info, parts: r.parts }));
+  const materialsRows = mAgg.rows.map((r, i) => ({ n: i + 1, name: r.name, unit: r.unit, qty: r.qty, price: r.price, cost: r.cost, parts: r.parts }));
   const materialsTotal = round2(materialsRows.reduce((s, r) => s + r.cost, 0));
   const names = [];
   ESTIMATE_ROWS.forEach((r) => { if (r.room && !names.includes(r.room)) names.push(r.room); });
@@ -542,7 +542,7 @@ function estimateModel(a) {
 function decomposeRoom(rows, room) {
   const out = [];
   rows.forEach((r) => r.parts.forEach((p) => {
-    if (p.room === room) out.push({ name: r.name, unit: r.unit, qty: p.qty, price: r.price, cost: round2(p.qty * r.price), info: r.info });
+    if (p.room === room) out.push({ name: r.name, unit: r.unit, qty: p.qty, price: r.price, cost: round2(p.qty * r.price) });
   }));
   return out.map((r, i) => Object.assign({ n: i + 1 }, r));
 }
@@ -553,8 +553,8 @@ function renderEstimate(a) {
   const worksRows = room === "all" ? a.rows : decomposeRoom(a.rows, room);
   const matRows = room === "all" ? em.materialsRows : decomposeRoom(em.materialsRows, room);
 
-  const rowHtml = (r) => '<div class="est-row"><div class="num">' + r.n + '</div><div class="name">' + esc(r.name) + '</div><div class="unit">' + esc(r.unit) + '</div><div class="qty tnum">' + fmtQty(r.qty) + '</div><div class="price tnum">' + fmtMoney(r.price) + '</div><div class="cost tnum">' + fmtMoney(r.cost) + '</div><div class="info">' + (r.info ? esc(r.info) : "") + "</div></div>";
-  const head = (kind) => '<div class="est-head"><div>#</div><div>' + (kind === "w" ? "Работа" : "Материал") + '</div><div>Ед.</div><div class="r">Кол&#8209;во</div><div class="r">Цена за ед., €</div><div class="r">Стоимость, €</div><div>Доп. инфо</div></div>';
+  const rowHtml = (r) => '<div class="est-row"><div class="num">' + r.n + '</div><div class="name">' + esc(r.name) + '</div><div class="unit">' + esc(r.unit) + '</div><div class="qty tnum">' + fmtQty(r.qty) + '</div><div class="price tnum">' + fmtMoney(r.price) + '</div><div class="cost tnum">' + fmtMoney(r.cost) + "</div></div>";
+  const head = (kind) => '<div class="est-head"><div>#</div><div>' + (kind === "w" ? "Работа" : "Материал") + '</div><div>Ед.</div><div class="r">Кол&#8209;во</div><div class="r">Цена за ед., €</div><div class="r">Стоимость, €</div></div>';
   const worksTotal = round2(worksRows.reduce((s, r) => s + r.cost, 0));
   const matTotal = round2(matRows.reduce((s, r) => s + r.cost, 0));
   const block = (title, total, rows, kind) =>
