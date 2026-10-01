@@ -522,7 +522,12 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 /* ---------- Вид: клиентская смета (экраны работы/материалы) ---------- */
 /* Геометрия навигации постоянна: активность меняет только цвет,
    вес шрифта не меняется никогда — ничего не прыгает. */
-.est-screens { display: flex; gap: 4px; margin-bottom: 5px; }
+/* Единая решётка (Иван 01.10): строки навигации и строки таблиц лежат на общих
+   горизонталях. Колонка навигации повторяет предструктуру панели: паддинг 26px,
+   полоса экранов 44px (= шапка блока), заголовок «Помещение» 36px (= шапка таблицы),
+   дальше шаг 40px. Вторая таблица при обоих экранах возвращается на ту же решётку:
+   зазор 40 + шапка блока 44 + шапка таблицы 36 = 120 = 3 × 40. */
+.est-screens { display: flex; gap: 4px; height: 44px; align-items: center; margin-bottom: 0; }
 .est-screens button {
   flex: 1;
   padding: 4px 0;
@@ -539,7 +544,7 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 .panel-dark {
   display: grid;
   grid-template-columns: 1fr;   /* таблицы друг под другом, каждая в полную ширину — имя не переносится */
-  gap: 30px;
+  gap: 40px;
   padding: 26px 28px;
   border-radius: 6px;
   background: linear-gradient(115deg, #2B2826 0%, #3D3734 100%);
@@ -550,12 +555,13 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 .est-body { display: grid; grid-template-columns: 190px minmax(0,1fr); gap: 22px; align-items: start; }
 /* Ритм навигации = ритм таблицы: одна высота строки — 40px, без шрифтовых метрик;
    шаг колонок одинаковый (таблица: 40 c бордером внутри, навигация: 40 без зазоров) */
-.est-rooms { display: flex; flex-direction: column; gap: 0; }
+.est-rooms { display: flex; flex-direction: column; gap: 0; padding-top: 26px; }
 .est-rooms-h {
   font-size: 11px; font-weight: 600; color: var(--ink-3);
   text-transform: uppercase; letter-spacing: 0.08em;
-  margin-top: 30px;     /* на уровне заголовков таблиц (#/Работа): паддинг панели + шапка блока */
-  margin-bottom: 8px;
+  height: 36px;          /* полоса шапки таблиц: «Помещение» на уровне #/Работа */
+  display: flex; align-items: center;
+  margin: 0;
 }
 .est-rooms button {
   display: flex; align-items: center; justify-content: space-between; gap: 8px;
@@ -572,10 +578,11 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 .est-rooms button .c { font-size: 11px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
 .blk-head {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 14px;
+  height: 44px;          /* полоса решётки: как экраны навигации */
+  margin-bottom: 0;
 }
 .blk-name { color: #fff; font-size: 16px; font-weight: 500; }
 .blk-total { color: #fff; text-align: right; white-space: nowrap; }
@@ -606,7 +613,7 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
   font-weight: 400;
   color: #A69F9A;
   letter-spacing: 0.02em;
-  padding: 0 8px 8px;
+  height: 36px;           /* полоса решётки: как заголовок «Помещение» навигации */
   border-bottom: 1px solid rgba(255,255,255,0.14);
 }
 .est-head div { white-space: nowrap; text-align: left; }
@@ -619,6 +626,18 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 .est-row .unit { color: #A69F9A; font-size: 11.5px; text-align: left; }
 .est-row .qty, .est-row .price { color: #fff; font-size: 12px; text-align: right; white-space: nowrap; }
 .est-row .cost { text-align: right; color: #fff; font-size: 12.5px; font-weight: 500; white-space: nowrap; font-variant-numeric: tabular-nums; }
+/* Метка группы помещения («Все»): строка той же решётки 40px, под собой — позиции группы */
+.est-group {
+  grid-column: 1 / -1;
+  display: flex; align-items: center;
+  height: 40px;
+  padding: 0 8px;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: #A69F9A;
+  background: rgba(255,255,255,0.04);
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
 
 /* ---------- Подвал страницы ---------- */
 .page-footer {

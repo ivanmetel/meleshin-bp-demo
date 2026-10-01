@@ -3,47 +3,25 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Машина сборки КП — Meleshin OS · демо модели реализации</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=15">
+<title>Машина сборки КП — демо разделилось — Meleshin OS</title>
+<style>
+  body { font-family: Inter, sans-serif; background: #F4F2EF; margin: 0; display: flex; min-height: 100vh; align-items: center; justify-content: center; }
+  .box { max-width: 520px; padding: 40px; text-align: center; }
+  h1 { font-size: 20px; color: #26221F; }
+  p { color: #6E6660; font-size: 14px; line-height: 1.6; }
+  a.btn { display: inline-block; margin: 8px 6px 0; padding: 10px 18px; border-radius: 6px; background: #26221F; color: #fff; text-decoration: none; font-size: 14px; }
+  a.btn.ghost { background: transparent; color: #26221F; border: 1px solid #D8D2CC; }
+  .redirect { font-size: 12px; color: #A69F9A; margin-top: 18px; }
+</style>
 </head>
 <body>
-
-<div class="page">
-  <div class="sim-banner">
-    <strong>Демо.</strong> Модель реализации ТЗ "BP auto-assembly" (30.09): оператор → машина → документ.
-    Объект 2699-Limassol-Apartment и все суммы вымышлены. Правки манифеста живут в памяти страницы до перезагрузки.
-  </div>
-
-  <div class="app">
-    <div class="d3-top">
-      <div class="brand"><img class="mark" src="meleshin-logo.png" alt="Meleshin"><span>Meleshin OS</span></div>
-      <div class="nav">
-        <span class="active">Кабинет клиента · Смета</span>
-      </div>
-      <div class="right">
-        <span class="chip accent">ТЗ 30.09 · BP auto-assembly</span>
-        <span class="lang"><span class="active">RU</span><span>·</span><span>EN</span></span>
-      </div>
-    </div>
-
-    <div id="hero"></div>
-
-    <div class="d3-main">
-      <aside class="d3-side" id="side"></aside>
-      <main class="d3-content" id="content"></main>
-    </div>
-  </div>
-
-  <div class="page-footer">
-    <span>Meleshin OS · модель реализации · сборка в браузере, без сервера</span>
-    <span class="mono">manifest → machine → document</span>
-  </div>
+<div class="box">
+  <h1>Демо машины сборки КП разделилось</h1>
+  <p>Клиентская часть — ЛК клиента с вкладкой «Смета». Операционная часть — админка с конструктором. Изменения в админке видны в ЛК клиента.</p>
+  <a class="btn" href="https://ivanmetel.github.io/meleshin-bp-client/">ЛК клиента</a>
+  <a class="btn ghost" href="https://ivanmetel.github.io/meleshin-bp-admin/">Админка</a>
+  <div class="redirect">Открывается ЛК клиента…</div>
 </div>
-
-<script src="data.js?v=15"></script>
-<script src="app.js?v=15"></script>
+<script>location.replace("https://ivanmetel.github.io/meleshin-bp-client/");</script>
 </body>
 </html>

@@ -540,13 +540,23 @@ function estimateModel(a) {
   return { materialsRows, materialsTotal, rooms };
 }
 
-// Выбор помещения = разложение агрегированных строк обратно по зонам; нумерация с 1.
-function decomposeRoom(rows, room) {
-  const out = [];
-  rows.forEach((r) => r.parts.forEach((p) => {
-    if (p.room === room) out.push({ name: r.name, unit: r.unit, qty: p.qty, price: r.price, cost: round2(p.qty * r.price) });
-  }));
-  return out.map((r, i) => Object.assign({ n: i + 1 }, r));
+// Встроенный калькулятор: экран показывает позиции сметы, и каждое число считается
+// из видимых строк — каунтер считает строки таблицы, итог блока суммирует их.
+// «Все» — группы помещений со сквозной нумерацией (сопутствующие ед. мес. — последняя
+// именованная группа, в каунтеры не входят), помещение — своя группа, нумерация с 1.
+// Агрегация имя+цена остаётся в документе КП, клиентский экран её не показывает.
+function estimateGroups(src, room, rooms, related) {
+  const posRows = (roomKey, startN) => src.filter((r) => r.room === roomKey).map((r, i) => ({ n: startN + i, name: r.name, unit: r.unit, qty: r.qty, price: r.price, cost: round2(r.qty * r.price) }));
+  if (room !== "all") return [{ label: null, rows: posRows(room, 1) }];
+  const gs = [];
+  let n = 1;
+  rooms.forEach((r) => {
+    const rows = posRows(r.name, n);
+    n += rows.length;
+    if (rows.length) gs.push({ label: r.name, rows });
+  });
+  if (related.length) gs.push({ label: FIXED.related_h2, rows: related.map((r, i) => Object.assign({ n: n + i }, r)) });
+  return gs;
 }
 
 function renderEstimate(a) {
@@ -556,28 +566,30 @@ function renderEstimate(a) {
   // СМР по помещениям + сопутствующие строками той же таблицы (ед. мес., без помещения);
   // «Материалы» — черновые, в стоимости. Итоги таблиц сходятся к «Стоимость по проекту».
   const relRaw = FIXED.related_rows.map((r) => ({ name: r.name, unit: r.unit, qty: r.qty, price: r.price, cost: round2(r.qty * r.price) }));
-  const relSum = round2(relRaw.reduce((s, r) => s + r.cost, 0));
   const related = STATE.manifest.layout.related_table === "separate" ? relRaw : [];
-  const worksRows = (room === "all" ? a.rows.concat(related) : decomposeRoom(a.rows, room)).map((r, i) => Object.assign({}, r, { n: i + 1 }));
-  const matRows = room === "all" ? em.materialsRows : decomposeRoom(em.materialsRows, room);
+  const worksGroups = estimateGroups(applyVariant(ESTIMATE_ROWS, STATE.manifest, STATE.variant).rows, room, em.rooms, related);
+  const matGroups = estimateGroups(MATERIALS_ROWS, room, em.rooms, []);
 
   const rowHtml = (r) => '<div class="est-row"><div class="num">' + r.n + '</div><div class="name">' + esc(r.name) + '</div><div class="unit">' + esc(r.unit) + '</div><div class="qty tnum">' + fmtQty(r.qty) + '</div><div class="price tnum">' + fmtMoney(r.price) + '</div><div class="cost tnum">' + fmtMoney(r.cost) + "</div></div>";
   const head = (kind) => '<div class="est-head"><div>#</div><div>' + (kind === "w" ? "Работа" : "Материал") + '</div><div>Ед.</div><div class="r">Кол&#8209;во</div><div class="r">Цена за ед., €</div><div class="r">Стоимость, €</div></div>';
-  const worksTotal = round2(worksRows.reduce((s, r) => s + r.cost, 0));
-  const matTotal = round2(matRows.reduce((s, r) => s + r.cost, 0));
-  const block = (title, total, rows, kind) =>
-    '<div class="est-blk"><div class="blk-head"><span class="blk-name">' + title + '</span><span class="blk-total"><span class="tnum">' + fmtMoney(total) + " €</span></span></div>" +
-    '<div class="est-table">' + head(kind) + rows.map(rowHtml).join("") + "</div></div>";
+  const groupHtml = (g) => (g.label ? '<div class="est-group">' + esc(g.label) + "</div>" : "") + g.rows.map(rowHtml).join("");
+  const block = (title, grps, kind) => {
+    const rows = grps.flatMap((g) => g.rows);
+    const total = round2(rows.reduce((s, r) => s + r.cost, 0));
+    return '<div class="est-blk"><div class="blk-head"><span class="blk-name">' + title + '</span><span class="blk-total"><span class="tnum">' + fmtMoney(total) + " €</span></span></div>" +
+      '<div class="est-table">' + head(kind) + grps.map(groupHtml).join("") + "</div></div>";
+  };
 
   const single = !(STATE.works && STATE.materials);
   let blocks = "";
-  if (STATE.works) blocks += block("Строительно-монтажные, отделочные и сопутствующие работы", worksTotal, worksRows, "w");
-  if (STATE.materials) blocks += block("Материалы", matTotal, matRows, "m");
+  if (STATE.works) blocks += block("Строительно-монтажные, отделочные и сопутствующие работы", worksGroups, "w");
+  if (STATE.materials) blocks += block("Материалы", matGroups, "m");
 
   const screens = '<div class="est-screens">' + [["works", "Работы", STATE.works], ["materials", "Материалы", STATE.materials]]
     .map(([k, l, on]) => '<button data-screen="' + k + '"' + (on ? ' class="active"' : "") + ">" + l + "</button>").join("") + "</div>";
-  // Каунтер = позиции сметы в выборе; «Все» = сумма каунтеров помещений (работы 37, материалы 36).
-  // Сопутствующие строки (ед. мес.) помещения не имеют — в каунтер не входят. Оба экрана → каунтеров нет.
+  // Каунтер = строки таблицы этого экрана (калькулятор: считаются показанные позиции);
+  // «Все» = сумма каунтеров помещений (работы 37, материалы 36); сопутствующие (ед. мес.)
+  // — отдельная именованная группа без помещения, в каунтеры не входят. Оба экрана → каунтеров нет.
   const one = STATE.works !== STATE.materials;
   const cnt = (n) => (one ? '<span class="c">' + n + "</span>" : "");
   const pick = (r) => (STATE.works ? r.wc : r.mc);
@@ -916,5 +928,5 @@ if (typeof document !== "undefined" && document.getElementById("content")) {
 }
 
 if (typeof module !== "undefined" && module.exports) {
-  module.exports = { ESTIMATE_ROWS, MATERIALS_ROWS, MANIFEST_DEFAULT, FIXED, STATE, clone, assemble, aggregate, applyVariant, runGates, repetitionScan, estimateModel, decomposeRoom, renderEstimate, renderDoc, renderReport, renderManifest, renderHero, renderSide, renderToolbar, fmtMoney, fmtQty, build };
+  module.exports = { ESTIMATE_ROWS, MATERIALS_ROWS, MANIFEST_DEFAULT, FIXED, STATE, clone, assemble, aggregate, applyVariant, runGates, repetitionScan, estimateModel, estimateGroups, renderEstimate, renderDoc, renderReport, renderManifest, renderHero, renderSide, renderToolbar, fmtMoney, fmtQty, build };
 }
