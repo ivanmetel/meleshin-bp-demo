@@ -551,7 +551,8 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 .est-blk { min-width: 0; }
 .est-table { overflow-x: auto; }
 .est-body { display: grid; grid-template-columns: 190px minmax(0,1fr); gap: 22px; align-items: start; }
-.est-rooms { display: flex; flex-direction: column; gap: 2px; }
+/* Ритм навигации = ритм таблицы: строка списка и строка таблицы одной высоты (39px + 1px разделитель) */
+.est-rooms { display: flex; flex-direction: column; gap: 1px; }
 .est-rooms-h {
   font-size: 11px; font-weight: 600; color: var(--ink-3);
   text-transform: uppercase; letter-spacing: 0.08em;
@@ -560,7 +561,8 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 }
 .est-rooms button {
   display: flex; align-items: center; justify-content: space-between; gap: 8px;
-  padding: 8px 12px;
+  padding: 0 12px;
+  height: 39px;
   border-radius: 6px;
   font-size: 12.5px;
   font-weight: 500;
@@ -611,7 +613,7 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 }
 .est-head div { white-space: nowrap; text-align: left; }
 .est-head .r { text-align: right; }
-.est-row { padding: 10px 8px; border-bottom: 1px solid rgba(255,255,255,0.07); }
+.est-row { padding: 10px 8px; min-height: 39px; border-bottom: 1px solid rgba(255,255,255,0.07); }
 .est-row:last-child { border-bottom: none; }
 .est-row:hover { background: rgba(255,255,255,0.08); border-radius: 6px; }
 .est-row .num { font-family: 'SF Mono', Menlo, monospace; font-size: 10.5px; color: #A69F9A; text-align: left; }

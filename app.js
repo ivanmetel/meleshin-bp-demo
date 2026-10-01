@@ -552,7 +552,13 @@ function decomposeRoom(rows, room) {
 function renderEstimate(a) {
   const em = estimateModel(a);
   const room = STATE.room;
-  const worksRows = room === "all" ? a.rows : decomposeRoom(a.rows, room);
+  // Две таблицы (канон): «Строительно-монтажные, отделочные и сопутствующие работы» —
+  // СМР по помещениям + сопутствующие строками той же таблицы (ед. мес., без помещения);
+  // «Материалы» — черновые, в стоимости. Итоги таблиц сходятся к «Стоимость по проекту».
+  const relRaw = FIXED.related_rows.map((r) => ({ name: r.name, unit: r.unit, qty: r.qty, price: r.price, cost: round2(r.qty * r.price) }));
+  const relSum = round2(relRaw.reduce((s, r) => s + r.cost, 0));
+  const related = STATE.manifest.layout.related_table === "separate" ? relRaw : [];
+  const worksRows = (room === "all" ? a.rows.concat(related) : decomposeRoom(a.rows, room)).map((r, i) => Object.assign({}, r, { n: i + 1 }));
   const matRows = room === "all" ? em.materialsRows : decomposeRoom(em.materialsRows, room);
 
   const rowHtml = (r) => '<div class="est-row"><div class="num">' + r.n + '</div><div class="name">' + esc(r.name) + '</div><div class="unit">' + esc(r.unit) + '</div><div class="qty tnum">' + fmtQty(r.qty) + '</div><div class="price tnum">' + fmtMoney(r.price) + '</div><div class="cost tnum">' + fmtMoney(r.cost) + "</div></div>";
@@ -565,15 +571,16 @@ function renderEstimate(a) {
 
   const single = !(STATE.works && STATE.materials);
   let blocks = "";
-  if (STATE.works) blocks += block("Строительно-монтажные и отделочные работы", worksTotal, worksRows, "w");
+  if (STATE.works) blocks += block("Строительно-монтажные, отделочные и сопутствующие работы", worksTotal, worksRows, "w");
   if (STATE.materials) blocks += block("Материалы", matTotal, matRows, "m");
 
   const screens = '<div class="est-screens">' + [["works", "Работы", STATE.works], ["materials", "Материалы", STATE.materials]]
     .map(([k, l, on]) => '<button data-screen="' + k + '"' + (on ? ' class="active"' : "") + ">" + l + "</button>").join("") + "</div>";
-  const one = STATE.works !== STATE.materials;   // ровно один экран включён → каунтеры считают его позиции; оба → каунтеров нет
+  // Каунтер = сколько строк клиент увидит в таблице при этом выборе; оба экрана → каунтеров нет
+  const one = STATE.works !== STATE.materials;
   const cnt = (n) => (one ? '<span class="c">' + n + "</span>" : "");
   const pick = (r) => (STATE.works ? r.wc : r.mc);
-  const total = one ? em.rooms.reduce((s, r) => s + pick(r), 0) : 0;
+  const total = one ? (STATE.works ? a.rows.length + related.length : em.materialsRows.length) : 0;
   const roomsNav = '<div class="est-rooms">' + screens + '<div class="est-rooms-h">Помещение</div>' +
     '<button data-room="all"' + (room === "all" ? ' class="active"' : "") + '><span>Все</span>' + cnt(total) + "</button>" +
     em.rooms.map((r) => '<button data-room="' + esc(r.name) + '"' + (room === r.name ? ' class="active"' : "") + '><span>' + esc(r.name) + "</span>" + cnt(pick(r)) + "</button>").join("") + "</div>";
