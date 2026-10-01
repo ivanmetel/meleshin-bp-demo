@@ -538,14 +538,13 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 /* Тёмная панель: градиент + виньетка (UI-спека: #2B2826 → #3D3734) */
 .panel-dark {
   display: grid;
-  grid-template-columns: minmax(0,6fr) minmax(0,4fr);   /* работы ~60% · материалы ~40% */
-  gap: 26px;
+  grid-template-columns: 1fr;   /* таблицы друг под другом, каждая в полную ширину — имя не переносится */
+  gap: 30px;
   padding: 26px 28px;
   border-radius: 6px;
   background: linear-gradient(115deg, #2B2826 0%, #3D3734 100%);
   box-shadow: inset 0 0 70px rgba(0,0,0,0.35), var(--shadow-xl);
 }
-.panel-dark.single { grid-template-columns: 1fr; }
 .est-blk { min-width: 0; }
 .est-table { overflow-x: auto; }
 .est-body { display: grid; grid-template-columns: 190px minmax(0,1fr); gap: 22px; align-items: start; }
@@ -612,11 +611,11 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 }
 .est-head div { white-space: nowrap; text-align: left; }
 .est-head .r { text-align: right; }
-.est-row { padding: 0 8px; min-height: 40px; border-bottom: 1px solid rgba(255,255,255,0.07); }
+.est-row { padding: 0 8px; height: 40px; border-bottom: 1px solid rgba(255,255,255,0.07); }
 .est-row:last-child { border-bottom: none; }
 .est-row:hover { background: rgba(255,255,255,0.08); border-radius: 6px; }
 .est-row .num { font-family: 'SF Mono', Menlo, monospace; font-size: 10.5px; color: #A69F9A; text-align: left; }
-.est-row .name { color: #fff; font-size: 12.5px; font-weight: 400; line-height: 1.45; text-align: left; overflow-wrap: anywhere; }
+.est-row .name { color: #fff; font-size: 12.5px; font-weight: 400; line-height: 1.45; text-align: left; white-space: nowrap; }   /* имя в одну строку — высота строки постоянна */
 .est-row .unit { color: #A69F9A; font-size: 11.5px; text-align: left; }
 .est-row .qty, .est-row .price { color: #fff; font-size: 12px; text-align: right; white-space: nowrap; }
 .est-row .cost { text-align: right; color: #fff; font-size: 12.5px; font-weight: 500; white-space: nowrap; font-variant-numeric: tabular-nums; }
