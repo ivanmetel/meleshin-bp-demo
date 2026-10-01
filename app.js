@@ -23,7 +23,7 @@ function applyVariant(rows, manifest, variantKey) {
   const changes = { replaced: [], dropped: [] };
   (v.replace || []).forEach((r) => {
     const i = out.findIndex((x) => x.name === r.match);
-    if (i >= 0) { out[i] = Object.assign({}, r.row, { zone: out[i].zone }); changes.replaced.push({ from: r.match, to: r.row.name }); }
+    if (i >= 0) { out[i] = Object.assign({}, r.row, { room: out[i].room }); changes.replaced.push({ from: r.match, to: r.row.name }); }
   });
   (v.drop || []).forEach((name) => {
     const i = out.findIndex((x) => x.name === name);
@@ -42,7 +42,7 @@ function aggregate(srcRows) {
     const g = map.get(key);
     g.qty = round2(g.qty + r.qty);
     g.cost = round2(g.cost + round2(r.qty * r.price));
-    g.parts.push({ zone: r.zone || "—", qty: r.qty });
+    g.parts.push({ room: r.room || "—", qty: r.qty });
   });
   const groups = order.map((k) => map.get(k));
   const merged = groups.filter((g) => g.parts.length > 1).map((g) => ({ name: g.name, price: g.price, parts: g.parts, qty: g.qty }));
@@ -499,7 +499,7 @@ const STATE = {
   manifest: clone(MANIFEST_DEFAULT),
   variant: "base",
   view: "estimate", // смета (клиент) | документ | маркдаун | манифест | отчёт
-  screen: "all", // экраны сметы: все | работы | материалы (навигация сверху)
+  works: true, materials: true, // экраны сметы: Работы / Материалы — нажаты по одной или обе
   room: "all", // помещения сметы (навигация слева)
   status: "sent", // Отправлен | Согласован с клиентом (ТЗ Клиентская смета, 4)
   search: "",
@@ -526,13 +526,13 @@ function estimateModel(a) {
   const mAgg = aggregate(MATERIALS_ROWS);
   const materialsRows = mAgg.rows.map((r, i) => ({ n: i + 1, name: r.name, unit: r.unit, qty: r.qty, price: r.price, cost: r.cost, info: r.info, parts: r.parts }));
   const materialsTotal = round2(materialsRows.reduce((s, r) => s + r.cost, 0));
-  const zones = [];
-  ESTIMATE_ROWS.forEach((r) => { if (r.zone && !zones.includes(r.zone)) zones.push(r.zone); });
-  MATERIALS_ROWS.forEach((r) => { if (r.zone && !zones.includes(r.zone)) zones.push(r.zone); });
-  const rooms = zones.map((z) => {
+  const names = [];
+  ESTIMATE_ROWS.forEach((r) => { if (r.room && !names.includes(r.room)) names.push(r.room); });
+  MATERIALS_ROWS.forEach((r) => { if (r.room && !names.includes(r.room)) names.push(r.room); });
+  const rooms = names.map((z) => {
     let count = 0;
     let sum = 0;
-    a.rows.forEach((r) => r.parts.forEach((p) => { if (p.zone === z) { count++; sum = round2(sum + round2(p.qty * r.price)); } }));
+    a.rows.forEach((r) => r.parts.forEach((p) => { if (p.room === z) { count++; sum = round2(sum + round2(p.qty * r.price)); } }));
     return { name: z, count, sum };
   });
   return { materialsRows, materialsTotal, rooms };
@@ -542,7 +542,7 @@ function estimateModel(a) {
 function decomposeRoom(rows, room) {
   const out = [];
   rows.forEach((r) => r.parts.forEach((p) => {
-    if (p.zone === room) out.push({ name: r.name, unit: r.unit, qty: p.qty, price: r.price, cost: round2(p.qty * r.price), info: r.info, zone: p.zone });
+    if (p.room === room) out.push({ name: r.name, unit: r.unit, qty: p.qty, price: r.price, cost: round2(p.qty * r.price), info: r.info });
   }));
   return out.map((r, i) => Object.assign({ n: i + 1 }, r));
 }
@@ -561,13 +561,12 @@ function renderEstimate(a) {
     '<div class="est-blk"><div class="blk-head"><span class="blk-name">' + title + '</span><span class="blk-total"><span class="tnum">' + fmtMoney(total) + " €</span></span></div>" +
     '<div class="est-table">' + head(kind) + rows.map(rowHtml).join("") + "</div></div>";
 
-  const tabs = [["all", "Все"], ["works", "Работы"], ["materials", "Материалы"]]
-    .map(([k, l]) => '<button data-screen="' + k + '"' + (STATE.screen === k ? ' class="active"' : "") + ">" + l + "</button>").join("");
-  const single = STATE.screen !== "all";
+  const tabs = [["works", "Работы", STATE.works], ["materials", "Материалы", STATE.materials]]
+    .map(([k, l, on]) => '<button data-screen="' + k + '"' + (on ? ' class="active"' : "") + ">" + l + "</button>").join("");
+  const single = !(STATE.works && STATE.materials);
   let blocks = "";
-  if (STATE.screen === "all") blocks = block("Строительно-монтажные и отделочные работы", worksTotal, worksRows, "w") + block("Материалы", matTotal, matRows, "m");
-  else if (STATE.screen === "works") blocks = block("Строительно-монтажные и отделочные работы", worksTotal, worksRows, "w");
-  else blocks = block("Материалы", matTotal, matRows, "m");
+  if (STATE.works) blocks += block("Строительно-монтажные и отделочные работы", worksTotal, worksRows, "w");
+  if (STATE.materials) blocks += block("Материалы", matTotal, matRows, "m");
 
   const roomsNav = '<div class="est-rooms"><div class="est-rooms-h">Помещение</div>' +
     '<button data-room="all"' + (room === "all" ? ' class="active"' : "") + ">Все</button>" +
@@ -664,7 +663,7 @@ function renderMd(a) {
 function renderReport(a) {
   const m = STATE.manifest;
   const gateRow = (x) => '<div class="rep-row ' + x.status + '"><span class="rep-status">' + (x.status === "pass" ? "✓" : x.status === "skip" ? "○" : "✕") + '</span><span class="rep-n">' + x.n + '</span><span class="rep-title">' + esc(x.title) + '</span><span class="rep-detail">' + esc(x.detail) + "</span></div>";
-  const merged = a.aggregation.merged.map((gr) => "<div>«" + esc(gr.name) + "» " + fmtMoney(gr.price) + " €: " + gr.parts.map((p) => p.zone + " " + fmtQty(p.qty)).join(" + ") + " → " + fmtQty(gr.qty) + " " + a.rows.find((r) => r.name === gr.name && r.price === gr.price).unit + "</div>").join("");
+  const merged = a.aggregation.merged.map((gr) => "<div>«" + esc(gr.name) + "» " + fmtMoney(gr.price) + " €: " + gr.parts.map((p) => p.room + " " + fmtQty(p.qty)).join(" + ") + " → " + fmtQty(gr.qty) + " " + a.rows.find((r) => r.name === gr.name && r.price === gr.price).unit + "</div>").join("");
   const split = a.aggregation.keptSplit.map((gr) => "<div>«" + esc(gr.name) + "»: " + gr.prices.map((p) => fmtMoney(p) + " €").join(" | ") + " — строки остаются раздельными</div>").join("");
   const vc = a.variantChanges;
   return (
@@ -842,7 +841,12 @@ function setPath(obj, path, value) {
 function wire(a) {
   const root = document.getElementById("content");
   root.querySelectorAll("[data-view]").forEach((b) => b.addEventListener("click", () => { STATE.view = b.dataset.view; renderAll(); }));
-  root.querySelectorAll("[data-screen]").forEach((b) => b.addEventListener("click", () => { STATE.screen = b.dataset.screen; renderAll(); }));
+  root.querySelectorAll("[data-screen]").forEach((b) => b.addEventListener("click", () => {
+    const k = b.dataset.screen;
+    const other = k === "works" ? STATE.materials : STATE.works;
+    if (other) STATE[k] = !STATE[k];   // хотя бы один экран остаётся нажатым
+    renderAll();
+  }));
   root.querySelectorAll("[data-room]").forEach((b) => b.addEventListener("click", () => { STATE.room = b.dataset.room; renderAll(); }));
   root.querySelectorAll("[data-variant]").forEach((b) => b.addEventListener("click", () => { STATE.variant = b.dataset.variant; renderAll(); }));
   root.querySelectorAll("[data-block]").forEach((b) => b.addEventListener("click", () => {

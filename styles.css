@@ -1,7 +1,7 @@
 /* ============================================================
-   Машина сборки КП — демо. Стили перенесены из десктоп-части
-   мокапа клиентской сметы (client-estimate-mockup.html): палитра,
-   Inter + Manrope, компоновка d3-top / d3-hero / d3-main.
+   Машина сборки КП — демо. Утверждённая версия кабинета клиента
+   (решения Ивана, ТЗ §13): палитра, Inter + Manrope,
+   компоновка d3-top / d3-hero / d3-main, тёмная панель сметы.
    ============================================================ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
@@ -552,7 +552,9 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 .est-rooms { display: flex; flex-direction: column; gap: 2px; }
 .est-rooms-h {
   font-size: 11px; font-weight: 600; color: var(--ink-3);
-  text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  margin-top: 26px;   /* на уровне названия блока внутри тёмной панели */
+  margin-bottom: 8px;
 }
 .est-rooms button {
   display: flex; align-items: center; justify-content: space-between; gap: 8px;
@@ -577,11 +579,24 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 .blk-total { color: #fff; text-align: right; white-space: nowrap; }
 .blk-total .tnum { font-size: 21px; font-weight: 700; letter-spacing: -0.01em; font-family: 'Manrope', sans-serif; }
 
+/* Правило ширины (десктоп): таблица занимает всю ширину блока; распределение
+   по роли колонок — имя гибкое (забирает остаток, min под типовую строку),
+   числовые — по заголовку, «Доп. инфо» — остаток. Переносится только текст,
+   числа — никогда. Горизонтальный скролл — запасной вариант ниже минимума. */
+.est-table {
+  display: grid;
+  grid-template-columns: 26px minmax(160px, 2.2fr) 34px 52px max-content max-content minmax(0, 1fr);
+  column-gap: 7px;
+  row-gap: 0;
+  align-items: center;
+  overflow-x: auto;
+}
 .est-head, .est-row {
   display: grid;
-  grid-template-columns: 24px minmax(0,1fr) 34px 50px 86px 78px 96px;
-  gap: 7px;
+  grid-template-columns: subgrid;
+  grid-column: 1 / -1;
   align-items: center;
+  padding: 0 8px;
 }
 .est-head {
   font-size: 10.5px;
@@ -591,14 +606,13 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
   padding: 0 8px 8px;
   border-bottom: 1px solid rgba(255,255,255,0.14);
 }
-.est-head div { white-space: nowrap; }
+.est-head div { white-space: nowrap; text-align: left; }
 .est-head .r { text-align: right; }
-.est-head div:not(.r) { text-align: left; }
 .est-row { padding: 10px 8px; border-bottom: 1px solid rgba(255,255,255,0.07); }
 .est-row:last-child { border-bottom: none; }
 .est-row:hover { background: rgba(255,255,255,0.08); border-radius: 8px; }
 .est-row .num { font-family: 'SF Mono', Menlo, monospace; font-size: 10.5px; color: #A69F9A; text-align: left; }
-.est-row .name { color: #fff; font-size: 12.5px; font-weight: 400; line-height: 1.45; text-align: left; }
+.est-row .name { color: #fff; font-size: 12.5px; font-weight: 400; line-height: 1.45; text-align: left; overflow-wrap: anywhere; }
 .est-row .unit { color: #A69F9A; font-size: 11.5px; text-align: left; }
 .est-row .qty, .est-row .price { color: #fff; font-size: 12px; text-align: right; white-space: nowrap; }
 .est-row .cost { text-align: right; color: #fff; font-size: 12.5px; font-weight: 500; white-space: nowrap; font-variant-numeric: tabular-nums; }
@@ -642,7 +656,8 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
   .mf-grid, .rep-grid { grid-template-columns: 1fr; }
   .panel-dark { grid-template-columns: 1fr; padding: 18px; }
   .est-body { grid-template-columns: 1fr; }
-  .est-head, .est-row { grid-template-columns: 22px 1fr 30px 44px 78px 72px; }
+  .est-rooms-h { margin-top: 0; }
+  .est-table { grid-template-columns: 26px minmax(150px, 1fr) 34px 50px max-content max-content; }
   .est-head div:nth-child(7), .est-row .info { display: none; }
   .doc-grid { grid-template-columns: 1fr; }
   .doc-hero img { height: 180px; }
