@@ -553,29 +553,28 @@ function renderEstimate(a) {
   const worksRows = room === "all" ? a.rows : decomposeRoom(a.rows, room);
   const matRows = room === "all" ? em.materialsRows : decomposeRoom(em.materialsRows, room);
 
-  const rowHtml = (r) => '<div class="est-row"><div class="num">' + r.n + '</div><div class="name">' + esc(r.name) + '</div><div class="unit">' + esc(r.unit) + '</div><div class="qty tnum">' + fmtQty(r.qty) + '</div><div class="price tnum">' + fmtMoney(r.price) + '</div><div class="cost"><div class="tnum">' + fmtMoney(r.cost) + "</div>" +
-    (r.info ? '<div class="est-note">' + esc(r.info) + "</div>" : "") +
-    "</div></div>";
-  const head = (kind) => '<div class="est-head"><div>#</div><div>' + (kind === "w" ? "Работа" : "Материал") + '</div><div>Ед.</div><div class="r">Кол&#8209;во</div><div class="r">Цена за ед., €</div><div class="r">Стоимость, €</div></div>';
+  const rowHtml = (r) => '<div class="est-row"><div class="num">' + r.n + '</div><div class="name">' + esc(r.name) + '</div><div class="unit">' + esc(r.unit) + '</div><div class="qty tnum">' + fmtQty(r.qty) + '</div><div class="price tnum">' + fmtMoney(r.price) + '</div><div class="cost tnum">' + fmtMoney(r.cost) + '</div><div class="info">' + (r.info ? esc(r.info) : "") + "</div></div>";
+  const head = (kind) => '<div class="est-head"><div>#</div><div>' + (kind === "w" ? "Работа" : "Материал") + '</div><div>Ед.</div><div class="r">Кол&#8209;во</div><div class="r">Цена за ед., €</div><div class="r">Стоимость, €</div><div>Доп. инфо</div></div>';
+  const worksTotal = round2(worksRows.reduce((s, r) => s + r.cost, 0));
+  const matTotal = round2(matRows.reduce((s, r) => s + r.cost, 0));
   const block = (title, totalLabel, total, rows, kind) =>
     '<div class="est-blk"><div class="blk-head"><span class="blk-name">' + title + '</span><span class="blk-total"><span class="lbl">' + totalLabel + ':</span> <span class="tnum">' + fmtMoney(total) + " €</span></span></div>" +
-    (room !== "all" ? '<div class="est-filter">Помещение: ' + esc(room) + " · " + rows.length + " поз. · " + fmtMoney(round2(rows.reduce((s, r) => s + r.cost, 0))) + " €</div>" : "") +
     '<div class="est-table">' + head(kind) + rows.map(rowHtml).join("") + "</div></div>";
 
   const tabs = [["all", "Все"], ["works", "Работы"], ["materials", "Материалы"]]
     .map(([k, l]) => '<button data-screen="' + k + '"' + (STATE.screen === k ? ' class="active"' : "") + ">" + l + "</button>").join("");
   const single = STATE.screen !== "all";
   let blocks = "";
-  if (STATE.screen === "all") blocks = block("Отделочные работы", "Итого за работы", a.itogo, worksRows, "w") + block("Отделочные материалы", "Итого за материалы", em.materialsTotal, matRows, "m");
-  else if (STATE.screen === "works") blocks = block("Отделочные работы", "Итого за работы", a.itogo, worksRows, "w");
-  else blocks = block("Отделочные материалы", "Итого за материалы", em.materialsTotal, matRows, "m");
+  if (STATE.screen === "all") blocks = block("Строительно-монтажные и отделочные работы", "Итого за работы", worksTotal, worksRows, "w") + block("Материалы", "Итого за материалы", matTotal, matRows, "m");
+  else if (STATE.screen === "works") blocks = block("Строительно-монтажные и отделочные работы", "Итого за работы", worksTotal, worksRows, "w");
+  else blocks = block("Материалы", "Итого за материалы", matTotal, matRows, "m");
 
-  const roomsNav = '<div class="est-rooms"><span class="est-rooms-lbl">Помещение</span>' +
+  const roomsNav = '<div class="est-rooms"><div class="est-rooms-h">Помещение</div>' +
     '<button data-room="all"' + (room === "all" ? ' class="active"' : "") + ">Все</button>" +
-    em.rooms.map((r) => '<button data-room="' + esc(r.name) + '"' + (room === r.name ? ' class="active"' : "") + ">" + esc(r.name) + '<span class="c">' + r.count + "</span></button>").join("") + "</div>";
-  return '<div class="est-wrap"><div class="est-tabs">' + tabs + "</div>" + roomsNav +
-    '<div class="panel-dark' + (single ? " single" : "") + '">' + blocks + "</div>" +
-    '<div class="est-foot">Экраны и помещения — сверху; итог — в шапке блока; формат чисел: пробел тысяч, запятая, 2 знака</div></div>';
+    em.rooms.map((r) => '<button data-room="' + esc(r.name) + '"' + (room === r.name ? ' class="active"' : "") + '><span>' + esc(r.name) + '</span><span class="c">' + r.count + "</span></button>").join("") + "</div>";
+  return '<div class="est-wrap"><div class="est-tabs">' + tabs + "</div>" +
+    '<div class="est-body">' + roomsNav +
+    '<div class="panel-dark' + (single ? " single" : "") + '">' + blocks + "</div></div></div>";
 }
 
 /* ============================================================
@@ -804,11 +803,9 @@ function renderSide(a) {
 
 function renderToolbar(a) {
   const views = [["estimate", "Смета"], ["doc", "Документ"], ["md", "Маркдаун"], ["manifest", "Манифест"], ["report", "Отчёт"]];
-  const failed = a.gates.filter((x) => x.status === "fail").length;
   return (
     '<div class="d3-toolbar"><div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input id="doc-search" placeholder="Поиск по позициям…" value="' + esc(STATE.search) + '"' + (STATE.view === "doc" ? "" : " disabled") + "></div>" +
-    '<div class="view-toggle">' + views.map(([k, label]) => '<button data-view="' + k + '"' + (STATE.view === k ? ' class="active"' : "") + ">" + label + "</button>").join("") + "</div>" +
-    '<div class="right"><span class="gates-badge ' + (failed ? "bad" : "ok") + '">Ворота: ' + a.gatesPassed + "/" + a.gatesTotal + (failed ? " · fail: " + failed : "") + "</span></div></div>"
+    '<div class="view-toggle">' + views.map(([k, label]) => '<button data-view="' + k + '"' + (STATE.view === k ? ' class="active"' : "") + ">" + label + "</button>").join("") + "</div></div>"
   );
 }
 
@@ -868,10 +865,6 @@ function wire(a) {
     if (works) {
       const aa = build();
       works.querySelector(".bp-table, .doc-filter-note") && (works.innerHTML = '<div class="doc-h2">' + esc(STATE.manifest.layout.works_heading) + "</div>" + renderWorksTable(aa));
-      const badge = root.querySelector(".gates-badge");
-      const failed = aa.gates.filter((x) => x.status === "fail").length;
-      badge.textContent = "Ворота: " + aa.gatesPassed + "/" + aa.gatesTotal + (failed ? " · fail: " + failed : "");
-      badge.className = "gates-badge " + (failed ? "bad" : "ok");
     } else renderAll();
   });
   root.querySelectorAll(".mf-field input[data-path], .mf-field select[data-path]").forEach((inp) => inp.addEventListener("change", () => {

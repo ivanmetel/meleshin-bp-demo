@@ -279,16 +279,6 @@ li { margin: 4px 0; }
   white-space: nowrap;
 }
 .view-toggle button.active { background: var(--bg-card); color: var(--ink-1); box-shadow: var(--shadow-sm); font-weight: 600; }
-.d3-toolbar .right { margin-left: auto; display: flex; gap: 8px; align-items: center; }
-.gates-badge {
-  padding: 6px 12px;
-  border-radius: 999px;
-  font-size: 11.5px;
-  font-weight: 600;
-  white-space: nowrap;
-}
-.gates-badge.ok { background: var(--success-soft); color: var(--success); }
-.gates-badge.bad { background: var(--fail-soft); color: var(--fail); }
 
 /* ---------- Вид: документ (слайды) ---------- */
 .view-doc { display: flex; flex-direction: column; gap: 18px; }
@@ -544,7 +534,6 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
   color: var(--ink-2);
 }
 .est-tabs button.active { background: var(--ink-1); color: #fff; border-color: var(--ink-1); font-weight: 600; }
-.est-foot { font-size: 11.5px; color: var(--ink-3); }
 
 /* Тёмная панель: градиент + виньетка (UI-спека: #2B2826 → #3D3734) */
 .panel-dark {
@@ -559,22 +548,24 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 .panel-dark.single { grid-template-columns: 1fr; }
 .est-blk { min-width: 0; }
 .est-table { overflow-x: auto; }
-.est-rooms { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-.est-rooms-lbl {
+.est-body { display: grid; grid-template-columns: 190px minmax(0,1fr); gap: 22px; align-items: start; }
+.est-rooms { display: flex; flex-direction: column; gap: 2px; }
+.est-rooms-h {
   font-size: 11px; font-weight: 600; color: var(--ink-3);
-  text-transform: uppercase; letter-spacing: 0.08em; margin-right: 4px;
+  text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px;
 }
 .est-rooms button {
-  padding: 7px 14px;
-  border-radius: 999px;
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 8px 12px;
+  border-radius: 8px;
   font-size: 12.5px;
   font-weight: 500;
-  background: var(--bg-card);
-  border: 1px solid var(--line);
   color: var(--ink-2);
+  text-align: left;
 }
-.est-rooms button.active { background: var(--ink-1); color: #fff; border-color: var(--ink-1); font-weight: 600; }
-.est-rooms button .c { opacity: 0.6; font-size: 11px; margin-left: 5px; font-variant-numeric: tabular-nums; }
+.est-rooms button:hover { background: var(--bg-soft); }
+.est-rooms button.active { background: var(--accent-soft); color: var(--accent-dark); font-weight: 600; }
+.est-rooms button .c { font-size: 11px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
 .blk-head {
   display: flex;
   align-items: baseline;
@@ -586,35 +577,33 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 .blk-total { color: #fff; text-align: right; white-space: nowrap; }
 .blk-total .lbl { font-size: 11.5px; color: #A69F9A; font-weight: 400; }
 .blk-total .tnum { font-size: 21px; font-weight: 700; letter-spacing: -0.01em; font-family: 'Manrope', sans-serif; }
-.est-filter { font-size: 11.5px; color: #A69F9A; margin: -6px 0 12px; }
 
 .est-head, .est-row {
   display: grid;
-  grid-template-columns: 26px 1fr 36px 56px 70px 92px;
-  gap: 8px;
+  grid-template-columns: 24px minmax(0,1fr) 34px 50px 86px 78px 96px;
+  gap: 7px;
   align-items: center;
 }
 .est-head {
-  font-size: 10px;
-  font-weight: 300;
+  font-size: 10.5px;
+  font-weight: 400;
   color: #A69F9A;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  padding: 0 10px 8px;
+  letter-spacing: 0.02em;
+  padding: 0 8px 8px;
   border-bottom: 1px solid rgba(255,255,255,0.14);
 }
+.est-head div { white-space: nowrap; }
 .est-head .r { text-align: right; }
 .est-head div:not(.r) { text-align: left; }
-.est-row { padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.07); }
+.est-row { padding: 10px 8px; border-bottom: 1px solid rgba(255,255,255,0.07); }
 .est-row:last-child { border-bottom: none; }
 .est-row:hover { background: rgba(255,255,255,0.08); border-radius: 8px; }
 .est-row .num { font-family: 'SF Mono', Menlo, monospace; font-size: 10.5px; color: #A69F9A; text-align: left; }
 .est-row .name { color: #fff; font-size: 12.5px; font-weight: 400; line-height: 1.45; text-align: left; }
 .est-row .unit { color: #A69F9A; font-size: 11.5px; text-align: left; }
 .est-row .qty, .est-row .price { color: #fff; font-size: 12px; text-align: right; white-space: nowrap; }
-.est-row .cost { text-align: right; color: #fff; font-size: 12.5px; font-weight: 500; white-space: nowrap; }
-.est-row .cost .tnum { font-variant-numeric: tabular-nums; }
-.est-note { font-size: 10px; font-weight: 300; color: #A69F9A; margin-top: 3px; }
+.est-row .cost { text-align: right; color: #fff; font-size: 12.5px; font-weight: 500; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.est-row .info { color: #A69F9A; font-size: 10.5px; font-weight: 300; line-height: 1.45; text-align: left; }
 
 /* ---------- Подвал страницы ---------- */
 .page-footer {
@@ -653,7 +642,9 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
   .d3-side { display: none; }
   .mf-grid, .rep-grid { grid-template-columns: 1fr; }
   .panel-dark { grid-template-columns: 1fr; padding: 18px; }
-  .est-head, .est-row { grid-template-columns: 22px 1fr 30px 48px 62px 84px; }
+  .est-body { grid-template-columns: 1fr; }
+  .est-head, .est-row { grid-template-columns: 22px 1fr 30px 44px 78px 72px; }
+  .est-head div:nth-child(7), .est-row .info { display: none; }
   .doc-grid { grid-template-columns: 1fr; }
   .doc-hero img { height: 180px; }
   .bp-head, .bp-row { grid-template-columns: 34px 1fr 44px 62px 84px 84px; font-size: 12px; }
