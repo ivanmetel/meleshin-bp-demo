@@ -530,10 +530,12 @@ function estimateModel(a) {
   ESTIMATE_ROWS.forEach((r) => { if (r.room && !names.includes(r.room)) names.push(r.room); });
   MATERIALS_ROWS.forEach((r) => { if (r.room && !names.includes(r.room)) names.push(r.room); });
   const rooms = names.map((z) => {
-    let count = 0;
+    let wc = 0;
+    let mc = 0;
     let sum = 0;
-    a.rows.forEach((r) => r.parts.forEach((p) => { if (p.room === z) { count++; sum = round2(sum + round2(p.qty * r.price)); } }));
-    return { name: z, count, sum };
+    a.rows.forEach((r) => r.parts.forEach((p) => { if (p.room === z) { wc++; sum = round2(sum + round2(p.qty * r.price)); } }));
+    mAgg.rows.forEach((r) => r.parts.forEach((p) => { if (p.room === z) mc++; }));
+    return { name: z, wc, mc, sum };
   });
   return { materialsRows, materialsTotal, rooms };
 }
@@ -568,9 +570,13 @@ function renderEstimate(a) {
 
   const screens = '<div class="est-screens">' + [["works", "Работы", STATE.works], ["materials", "Материалы", STATE.materials]]
     .map(([k, l, on]) => '<button data-screen="' + k + '"' + (on ? ' class="active"' : "") + ">" + l + "</button>").join("") + "</div>";
+  const one = STATE.works !== STATE.materials;   // ровно один экран включён → каунтеры считают его позиции; оба → каунтеров нет
+  const cnt = (n) => (one ? '<span class="c">' + n + "</span>" : "");
+  const pick = (r) => (STATE.works ? r.wc : r.mc);
+  const total = one ? em.rooms.reduce((s, r) => s + pick(r), 0) : 0;
   const roomsNav = '<div class="est-rooms">' + screens + '<div class="est-rooms-h">Помещение</div>' +
-    '<button data-room="all"' + (room === "all" ? ' class="active"' : "") + '><span>Все</span><span class="c">' + em.rooms.reduce((s, r) => s + r.count, 0) + "</span></button>" +
-    em.rooms.map((r) => '<button data-room="' + esc(r.name) + '"' + (room === r.name ? ' class="active"' : "") + '><span>' + esc(r.name) + '</span><span class="c">' + r.count + "</span></button>").join("") + "</div>";
+    '<button data-room="all"' + (room === "all" ? ' class="active"' : "") + '><span>Все</span>' + cnt(total) + "</button>" +
+    em.rooms.map((r) => '<button data-room="' + esc(r.name) + '"' + (room === r.name ? ' class="active"' : "") + '><span>' + esc(r.name) + "</span>" + cnt(pick(r)) + "</button>").join("") + "</div>";
   return '<div id="est-root"><div class="est-body">' + roomsNav +
     '<div class="panel-dark' + (single ? " single" : "") + '">' + blocks + "</div></div></div>";
 }
@@ -746,7 +752,7 @@ function renderHero(a) {
     "<h2>" + esc(subtitleShort(m)) + "</h2>" +
     '<div class="addr">' + esc(m.object.field_object) + "</div>" +
     '<div class="total"><div class="lbl">Стоимость по проекту</div><div class="v tnum">' + fmtMoney(a.price) + " €</div>" +
-    '<div class="sub">+ 19% VAT · ' + a.rows.length + " позиций · таблица работ + сопутствующие + черновые материалы</div></div>" +
+    '<div class="sub">+ 19% VAT</div></div>' +
     '<div class="cta-row">' +
     (st === "sent" ? '<button class="btn primary" id="btn-approve">Согласовать</button>' : '<button class="btn ghost" disabled>Согласовано</button>') +
     '<button class="btn ghost" id="btn-pdf">Сохранить PDF</button>' +
