@@ -24,10 +24,10 @@
   --warn-soft: #F8EFD8;
   --fail: #B3402A;
   --fail-soft: #F9E4DC;
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 18px;
-  --radius-xl: 24px;
+  --radius-sm: 6px;
+  --radius-md: 6px;
+  --radius-lg: 6px;
+  --radius-xl: 6px;
   --shadow-sm: 0 1px 2px rgba(26,26,28,0.04), 0 2px 4px rgba(26,26,28,0.03);
   --shadow-md: 0 4px 12px rgba(26,26,28,0.06), 0 2px 4px rgba(26,26,28,0.04);
   --shadow-xl: 0 48px 80px -20px rgba(26,26,28,0.18), 0 16px 32px rgba(26,26,28,0.08);
@@ -93,7 +93,7 @@ li { margin: 4px 0; }
   width: 26px; height: 26px;
   background: var(--ink-1);
   color: #fff;
-  border-radius: 7px;
+  border-radius: 6px;
   display: flex; align-items: center; justify-content: center;
   font-size: 13px; font-weight: 700;
 }
@@ -103,7 +103,7 @@ li { margin: 4px 0; }
   font-size: 13px;
   font-weight: 500;
   color: var(--ink-3);
-  border-radius: 8px;
+  border-radius: 6px;
 }
 .d3-top .nav span.active { color: var(--ink-1); background: var(--bg-soft); }
 .d3-top .right { margin-left: auto; display: flex; align-items: center; gap: 14px; }
@@ -116,7 +116,7 @@ li { margin: 4px 0; }
   align-items: center;
   gap: 6px;
   padding: 5px 11px;
-  border-radius: 999px;
+  border-radius: 6px;
   font-size: 11.5px;
   font-weight: 500;
   background: var(--bg-soft);
@@ -146,7 +146,7 @@ li { margin: 4px 0; }
   align-items: center;
   gap: 6px;
   padding: 4px 10px;
-  border-radius: 999px;
+  border-radius: 6px;
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.02em;
@@ -194,7 +194,7 @@ li { margin: 4px 0; }
 .cta-row { display: flex; gap: 8px; margin-top: 4px; }
 .btn {
   padding: 11px 14px;
-  border-radius: 10px;
+  border-radius: 6px;
   font-size: 12.5px;
   font-weight: 600;
   display: inline-flex;
@@ -205,7 +205,7 @@ li { margin: 4px 0; }
 .btn.primary { background: var(--accent); color: #fff; box-shadow: 0 4px 12px rgba(184,92,60,0.3); }
 .btn.ghost { background: var(--bg-card); border: 1px solid var(--line); color: var(--ink-1); }
 .btn:disabled { opacity: 0.55; cursor: default; box-shadow: none; }
-.btn.sm { padding: 7px 11px; font-size: 11.5px; border-radius: 8px; }
+.btn.sm { padding: 7px 11px; font-size: 11.5px; border-radius: 6px; }
 
 /* ---------- Основная сетка: сайдбар + контент ---------- */
 .d3-main { display: grid; grid-template-columns: 264px 1fr; flex: 1; min-height: 0; }
@@ -230,7 +230,7 @@ li { margin: 4px 0; }
   justify-content: space-between;
   gap: 8px;
   padding: 6px 10px;
-  border-radius: 8px;
+  border-radius: 6px;
   font-size: 12.5px;
   color: var(--ink-2);
   cursor: pointer;
@@ -254,7 +254,7 @@ li { margin: 4px 0; }
   gap: 10px;
   padding: 8px 13px;
   background: var(--bg-soft);
-  border-radius: 10px;
+  border-radius: 6px;
   border: 1px solid var(--line);
 }
 .d3-toolbar .search svg { width: 15px; height: 15px; color: var(--ink-3); flex-shrink: 0; }
@@ -267,12 +267,12 @@ li { margin: 4px 0; }
   display: flex;
   background: var(--bg-soft);
   border: 1px solid var(--line);
-  border-radius: 10px;
+  border-radius: 6px;
   padding: 3px;
 }
 .view-toggle button {
   padding: 6px 12px;
-  border-radius: 7px;
+  border-radius: 6px;
   font-size: 12px;
   font-weight: 500;
   color: var(--ink-3);
@@ -454,7 +454,7 @@ li { margin: 4px 0; }
 .mf-field input[type="text"], .mf-field input:not([type]), .mf-field input[type="number"], .mf-field select {
   border: 1px solid var(--line);
   background: var(--bg-soft);
-  border-radius: 8px;
+  border-radius: 6px;
   padding: 8px 11px;
   font-size: 13px;
   color: var(--ink-1);
@@ -522,18 +522,20 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 .rep-detail { grid-column: 3; font-size: 12px; color: var(--ink-3); line-height: 1.55; }
 
 /* ---------- Вид: клиентская смета (экраны работы/материалы) ---------- */
-.est-wrap { display: flex; flex-direction: column; gap: 14px; }
-.est-tabs { display: flex; gap: 8px; align-items: center; }
-.est-tabs button {
-  padding: 8px 16px;
-  border-radius: 999px;
-  font-size: 12.5px;
+/* Геометрия навигации постоянна: активность меняет только цвет,
+   вес шрифта не меняется никогда — ничего не прыгает. */
+.est-screens { display: flex; gap: 4px; margin-bottom: 5px; }
+.est-screens button {
+  flex: 1;
+  padding: 4px 0;
+  border-radius: 6px;
+  font-size: 12px;
   font-weight: 500;
   background: var(--bg-card);
   border: 1px solid var(--line);
   color: var(--ink-2);
 }
-.est-tabs button.active { background: var(--ink-1); color: #fff; border-color: var(--ink-1); font-weight: 600; }
+.est-screens button.active { background: var(--ink-1); color: #fff; border-color: var(--ink-1); }
 
 /* Тёмная панель: градиент + виньетка (UI-спека: #2B2826 → #3D3734) */
 .panel-dark {
@@ -541,7 +543,7 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
   grid-template-columns: minmax(0,6fr) minmax(0,4fr);   /* работы ~60% · материалы ~40% */
   gap: 26px;
   padding: 26px 28px;
-  border-radius: 12px;
+  border-radius: 6px;
   background: linear-gradient(115deg, #2B2826 0%, #3D3734 100%);
   box-shadow: inset 0 0 70px rgba(0,0,0,0.35), var(--shadow-xl);
 }
@@ -553,20 +555,19 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 .est-rooms-h {
   font-size: 11px; font-weight: 600; color: var(--ink-3);
   text-transform: uppercase; letter-spacing: 0.08em;
-  margin-top: 26px;   /* на уровне названия блока внутри тёмной панели */
-  margin-bottom: 8px;
+  margin-bottom: 8px;   /* уровень задаёт строка экранов сверху — как название блока в панели */
 }
 .est-rooms button {
   display: flex; align-items: center; justify-content: space-between; gap: 8px;
   padding: 8px 12px;
-  border-radius: 8px;
+  border-radius: 6px;
   font-size: 12.5px;
   font-weight: 500;
   color: var(--ink-2);
   text-align: left;
 }
 .est-rooms button:hover { background: var(--bg-soft); }
-.est-rooms button.active { background: var(--accent-soft); color: var(--accent-dark); font-weight: 600; }
+.est-rooms button.active { background: var(--accent-soft); color: var(--accent-dark); }
 .est-rooms button .c { font-size: 11px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
 .blk-head {
   display: flex;
@@ -610,7 +611,7 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 .est-head .r { text-align: right; }
 .est-row { padding: 10px 8px; border-bottom: 1px solid rgba(255,255,255,0.07); }
 .est-row:last-child { border-bottom: none; }
-.est-row:hover { background: rgba(255,255,255,0.08); border-radius: 8px; }
+.est-row:hover { background: rgba(255,255,255,0.08); border-radius: 6px; }
 .est-row .num { font-family: 'SF Mono', Menlo, monospace; font-size: 10.5px; color: #A69F9A; text-align: left; }
 .est-row .name { color: #fff; font-size: 12.5px; font-weight: 400; line-height: 1.45; text-align: left; overflow-wrap: anywhere; }
 .est-row .unit { color: #A69F9A; font-size: 11.5px; text-align: left; }
@@ -655,7 +656,6 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
   .mf-grid, .rep-grid { grid-template-columns: 1fr; }
   .panel-dark { grid-template-columns: 1fr; padding: 18px; }
   .est-body { grid-template-columns: 1fr; }
-  .est-rooms-h { margin-top: 0; }
   .doc-grid { grid-template-columns: 1fr; }
   .doc-hero img { height: 180px; }
   .bp-head, .bp-row { grid-template-columns: 34px 1fr 44px 62px 84px 84px; font-size: 12px; }

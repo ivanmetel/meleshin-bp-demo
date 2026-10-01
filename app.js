@@ -561,18 +561,17 @@ function renderEstimate(a) {
     '<div class="est-blk"><div class="blk-head"><span class="blk-name">' + title + '</span><span class="blk-total"><span class="tnum">' + fmtMoney(total) + " €</span></span></div>" +
     '<div class="est-table">' + head(kind) + rows.map(rowHtml).join("") + "</div></div>";
 
-  const tabs = [["works", "Работы", STATE.works], ["materials", "Материалы", STATE.materials]]
-    .map(([k, l, on]) => '<button data-screen="' + k + '"' + (on ? ' class="active"' : "") + ">" + l + "</button>").join("");
   const single = !(STATE.works && STATE.materials);
   let blocks = "";
   if (STATE.works) blocks += block("Строительно-монтажные и отделочные работы", worksTotal, worksRows, "w");
   if (STATE.materials) blocks += block("Материалы", matTotal, matRows, "m");
 
-  const roomsNav = '<div class="est-rooms"><div class="est-rooms-h">Помещение</div>' +
+  const screens = '<div class="est-screens">' + [["works", "Работы", STATE.works], ["materials", "Материалы", STATE.materials]]
+    .map(([k, l, on]) => '<button data-screen="' + k + '"' + (on ? ' class="active"' : "") + ">" + l + "</button>").join("") + "</div>";
+  const roomsNav = '<div class="est-rooms">' + screens + '<div class="est-rooms-h">Помещение</div>' +
     '<button data-room="all"' + (room === "all" ? ' class="active"' : "") + ">Все</button>" +
     em.rooms.map((r) => '<button data-room="' + esc(r.name) + '"' + (room === r.name ? ' class="active"' : "") + '><span>' + esc(r.name) + '</span><span class="c">' + r.count + "</span></button>").join("") + "</div>";
-  return '<div class="est-wrap"><div class="est-tabs">' + tabs + "</div>" +
-    '<div class="est-body">' + roomsNav +
+  return '<div id="est-root"><div class="est-body">' + roomsNav +
     '<div class="panel-dark' + (single ? " single" : "") + '">' + blocks + "</div></div></div>";
 }
 
@@ -841,13 +840,19 @@ function setPath(obj, path, value) {
 function wire(a) {
   const root = document.getElementById("content");
   root.querySelectorAll("[data-view]").forEach((b) => b.addEventListener("click", () => { STATE.view = b.dataset.view; renderAll(); }));
-  root.querySelectorAll("[data-screen]").forEach((b) => b.addEventListener("click", () => {
-    const k = b.dataset.screen;
-    const other = k === "works" ? STATE.materials : STATE.works;
-    if (other) STATE[k] = !STATE[k];   // хотя бы один экран остаётся нажатым
-    renderAll();
-  }));
-  root.querySelectorAll("[data-room]").forEach((b) => b.addEventListener("click", () => { STATE.room = b.dataset.room; renderAll(); }));
+  // Смена экрана/помещения: точечное обновление зоны сметы — героя, тулбар и скролл не трогаем.
+  const estRoot = root.querySelector("#est-root");
+  if (estRoot) estRoot.addEventListener("click", (e) => {
+    const scr = e.target.closest("[data-screen]");
+    const roomBtn = e.target.closest("[data-room]");
+    if (scr) {
+      const k = scr.dataset.screen;
+      const other = k === "works" ? STATE.materials : STATE.works;
+      if (other) STATE[k] = !STATE[k];   // хотя бы один экран остаётся нажатым
+    }
+    if (roomBtn) STATE.room = roomBtn.dataset.room;
+    if (scr || roomBtn) estRoot.innerHTML = renderEstimate(build());
+  });
   root.querySelectorAll("[data-variant]").forEach((b) => b.addEventListener("click", () => { STATE.variant = b.dataset.variant; renderAll(); }));
   root.querySelectorAll("[data-block]").forEach((b) => b.addEventListener("click", () => {
     STATE.view = "doc";
