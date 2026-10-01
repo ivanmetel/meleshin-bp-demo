@@ -727,7 +727,7 @@ function renderManifest() {
     f("Фото объекта", '<input type="checkbox" data-path="toggle-photos"' + (!m.layout.omit.includes("photos") ? " checked" : "") + ">") +
     f("Блок согласований (решение 3)", '<input type="checkbox" data-path="layout.permits"' + (m.layout.permits ? " checked" : "") + ">") +
     "</div>" +
-    '<div class="mf-card"><div class="mf-h">Решения ТЗ §12</div>' +
+    '<div class="mf-card"><div class="mf-h">Решения ТЗ</div>' +
     f("1. Бренд", '<select data-path="layout.brand"><option' + (m.layout.brand === "MELESHIN LTD" ? " selected" : "") + '>MELESHIN LTD</option><option' + (m.layout.brand === "MELESHIN Group" ? " selected" : "") + ">MELESHIN Group</option></select>") +
     f("2. Язык ЛК клиента (админ-тумблер)", '<select data-path="object.language"><option value="ru"' + (m.object.language === "ru" ? " selected" : "") + '>ru — кабинет на русском</option><option value="en" disabled>en [ ] — решение 2 ТЗ</option></select>') +
     f("4. Менеджер", '<select data-path="object.manager_top"><option value="1"' + (m.object.manager_top ? " selected" : "") + '>сверху, перед заголовком</option><option value="0"' + (!m.object.manager_top ? " selected" : "") + ">снизу</option></select>") +
@@ -802,7 +802,7 @@ function renderSide(a) {
   return (
     '<div class="group"><div class="h"><span>Вариант</span></div>' + variants + "</div>" +
     '<div class="group"><div class="h"><span>Блоки документа</span><span class="c">' + present.size + '/22</span></div>' + blocks + "</div>" +
-    '<div class="group"><div class="h"><span>Решения ТЗ §12</span></div>' +
+    '<div class="group"><div class="h"><span>Решения ТЗ</span></div>' +
     '<div class="item" data-decision="brand"><span class="name">1 · Бренд</span><span class="c">' + (m.layout.brand === "MELESHIN LTD" ? "LTD" : "Group") + "</span></div>" +
     '<div class="item"><span class="name">2 · en-профиль</span><span class="c">[ ]</span></div>' +
     '<div class="item" data-decision="permits"><span class="name">3 · permits</span><span class="c">' + (m.layout.permits ? "вкл" : "выкл") + "</span></div>" +
