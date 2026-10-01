@@ -575,7 +575,6 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 }
 .blk-name { color: #fff; font-size: 16px; font-weight: 500; }
 .blk-total { color: #fff; text-align: right; white-space: nowrap; }
-.blk-total .lbl { font-size: 11.5px; color: #A69F9A; font-weight: 400; }
 .blk-total .tnum { font-size: 21px; font-weight: 700; letter-spacing: -0.01em; font-family: 'Manrope', sans-serif; }
 
 .est-head, .est-row {

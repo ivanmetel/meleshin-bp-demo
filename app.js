@@ -557,17 +557,17 @@ function renderEstimate(a) {
   const head = (kind) => '<div class="est-head"><div>#</div><div>' + (kind === "w" ? "Работа" : "Материал") + '</div><div>Ед.</div><div class="r">Кол&#8209;во</div><div class="r">Цена за ед., €</div><div class="r">Стоимость, €</div><div>Доп. инфо</div></div>';
   const worksTotal = round2(worksRows.reduce((s, r) => s + r.cost, 0));
   const matTotal = round2(matRows.reduce((s, r) => s + r.cost, 0));
-  const block = (title, totalLabel, total, rows, kind) =>
-    '<div class="est-blk"><div class="blk-head"><span class="blk-name">' + title + '</span><span class="blk-total"><span class="lbl">' + totalLabel + ':</span> <span class="tnum">' + fmtMoney(total) + " €</span></span></div>" +
+  const block = (title, total, rows, kind) =>
+    '<div class="est-blk"><div class="blk-head"><span class="blk-name">' + title + '</span><span class="blk-total"><span class="tnum">' + fmtMoney(total) + " €</span></span></div>" +
     '<div class="est-table">' + head(kind) + rows.map(rowHtml).join("") + "</div></div>";
 
   const tabs = [["all", "Все"], ["works", "Работы"], ["materials", "Материалы"]]
     .map(([k, l]) => '<button data-screen="' + k + '"' + (STATE.screen === k ? ' class="active"' : "") + ">" + l + "</button>").join("");
   const single = STATE.screen !== "all";
   let blocks = "";
-  if (STATE.screen === "all") blocks = block("Строительно-монтажные и отделочные работы", "Итого за работы", worksTotal, worksRows, "w") + block("Материалы", "Итого за материалы", matTotal, matRows, "m");
-  else if (STATE.screen === "works") blocks = block("Строительно-монтажные и отделочные работы", "Итого за работы", worksTotal, worksRows, "w");
-  else blocks = block("Материалы", "Итого за материалы", matTotal, matRows, "m");
+  if (STATE.screen === "all") blocks = block("Строительно-монтажные и отделочные работы", worksTotal, worksRows, "w") + block("Материалы", matTotal, matRows, "m");
+  else if (STATE.screen === "works") blocks = block("Строительно-монтажные и отделочные работы", worksTotal, worksRows, "w");
+  else blocks = block("Материалы", matTotal, matRows, "m");
 
   const roomsNav = '<div class="est-rooms"><div class="est-rooms-h">Помещение</div>' +
     '<button data-room="all"' + (room === "all" ? ' class="active"' : "") + ">Все</button>" +
