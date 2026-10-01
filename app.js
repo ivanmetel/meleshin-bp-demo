@@ -576,11 +576,12 @@ function renderEstimate(a) {
 
   const screens = '<div class="est-screens">' + [["works", "Работы", STATE.works], ["materials", "Материалы", STATE.materials]]
     .map(([k, l, on]) => '<button data-screen="' + k + '"' + (on ? ' class="active"' : "") + ">" + l + "</button>").join("") + "</div>";
-  // Каунтер = сколько строк клиент увидит в таблице при этом выборе; оба экрана → каунтеров нет
+  // Каунтер = позиции сметы в выборе; «Все» = сумма каунтеров помещений (работы 37, материалы 36).
+  // Сопутствующие строки (ед. мес.) помещения не имеют — в каунтер не входят. Оба экрана → каунтеров нет.
   const one = STATE.works !== STATE.materials;
   const cnt = (n) => (one ? '<span class="c">' + n + "</span>" : "");
   const pick = (r) => (STATE.works ? r.wc : r.mc);
-  const total = one ? (STATE.works ? a.rows.length + related.length : em.materialsRows.length) : 0;
+  const total = one ? em.rooms.reduce((s, r) => s + pick(r), 0) : 0;
   const roomsNav = '<div class="est-rooms">' + screens + '<div class="est-rooms-h">Помещение</div>' +
     '<button data-room="all"' + (room === "all" ? ' class="active"' : "") + '><span>Все</span>' + cnt(total) + "</button>" +
     em.rooms.map((r) => '<button data-room="' + esc(r.name) + '"' + (room === r.name ? ' class="active"' : "") + '><span>' + esc(r.name) + "</span>" + cnt(pick(r)) + "</button>").join("") + "</div>";

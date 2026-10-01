@@ -188,7 +188,7 @@ li { margin: 4px 0; }
   font-family: 'Manrope', sans-serif;
   font-size: 28px; font-weight: 700; letter-spacing: -0.02em;
 }
-.d3-hero .summary .total .sub { font-size: 11px; color: var(--ink-3); margin-top: 4px; line-height: 1.5; }
+.d3-hero .summary .total .sub { font-size: 14px; font-weight: 600; color: var(--ink-2); margin-top: 4px; line-height: 1.4; }
 .cta-row { display: flex; gap: 8px; margin-top: 4px; }
 .btn {
   padding: 11px 14px;
