@@ -569,7 +569,7 @@ function renderEstimate(a) {
   const screens = '<div class="est-screens">' + [["works", "Работы", STATE.works], ["materials", "Материалы", STATE.materials]]
     .map(([k, l, on]) => '<button data-screen="' + k + '"' + (on ? ' class="active"' : "") + ">" + l + "</button>").join("") + "</div>";
   const roomsNav = '<div class="est-rooms">' + screens + '<div class="est-rooms-h">Помещение</div>' +
-    '<button data-room="all"' + (room === "all" ? ' class="active"' : "") + ">Все</button>" +
+    '<button data-room="all"' + (room === "all" ? ' class="active"' : "") + '><span>Все</span><span class="c">' + em.rooms.reduce((s, r) => s + r.count, 0) + "</span></button>" +
     em.rooms.map((r) => '<button data-room="' + esc(r.name) + '"' + (room === r.name ? ' class="active"' : "") + '><span>' + esc(r.name) + '</span><span class="c">' + r.count + "</span></button>").join("") + "</div>";
   return '<div id="est-root"><div class="est-body">' + roomsNav +
     '<div class="panel-dark' + (single ? " single" : "") + '">' + blocks + "</div></div></div>";

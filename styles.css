@@ -356,7 +356,7 @@ li { margin: 4px 0; }
 .bp-table { border: 1px solid var(--line); border-radius: var(--radius-md); overflow: hidden; }
 .bp-head, .bp-row {
   display: grid;
-  grid-template-columns: 46px 1fr 58px 80px 104px 104px;
+  grid-template-columns: 46px 1fr 40px 60px 104px 104px;   /* Ед. — «компл.», Кол-во — «9 999,99» */
   align-items: center;
 }
 .bp-head {
@@ -555,7 +555,8 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 .est-rooms-h {
   font-size: 11px; font-weight: 600; color: var(--ink-3);
   text-transform: uppercase; letter-spacing: 0.08em;
-  margin-bottom: 8px;   /* уровень задаёт строка экранов сверху — как название блока в панели */
+  margin-top: 30px;     /* на уровне заголовков таблиц (#/Работа): паддинг панели + шапка блока */
+  margin-bottom: 8px;
 }
 .est-rooms button {
   display: flex; align-items: center; justify-content: space-between; gap: 8px;
@@ -582,11 +583,12 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 
 /* Правило ширины (десктоп): таблица занимает всю ширину блока; распределение
    по роли колонок — имя гибкое (забирает остаток, min под типовую строку),
-   числовые — по заголовку, «Доп. инфо» — остаток. Переносится только текст,
-   числа — никогда. Горизонтальный скролл — запасной вариант ниже минимума. */
+   числовые — по заголовку; Ед. и Кол-во — по максимуму роли: «компл.» и
+   «9 999,99». Переносится только текст, числа — никогда. Горизонтальный
+   скролл — запасной вариант ниже минимума. */
 .est-table {
   display: grid;
-  grid-template-columns: 26px minmax(160px, 2.4fr) 34px 52px max-content max-content;
+  grid-template-columns: 26px minmax(160px, 2.4fr) 38px 57px max-content max-content;
   column-gap: 7px;
   row-gap: 0;
   align-items: center;
@@ -658,5 +660,5 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
   .est-body { grid-template-columns: 1fr; }
   .doc-grid { grid-template-columns: 1fr; }
   .doc-hero img { height: 180px; }
-  .bp-head, .bp-row { grid-template-columns: 34px 1fr 44px 62px 84px 84px; font-size: 12px; }
+  .bp-head, .bp-row { grid-template-columns: 34px 1fr 38px 57px 84px 84px; font-size: 12px; }
 }
