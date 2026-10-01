@@ -16,7 +16,7 @@ function fmtQty(v) { return Number.isInteger(v) ? thousands(String(v)) : thousan
    Машина: вариант → агрегация → таблица → документ
    ============================================================ */
 
-// Наложение варианта (ТЗ 8.5): замена/исключение строк поверх базового состава.
+// Наложение варианта (Правила сборки, правило 4): замена/исключение строк поверх базового состава.
 function applyVariant(rows, manifest, variantKey) {
   const v = manifest.variants[variantKey] || { label: variantKey };
   const out = clone(rows);
@@ -32,7 +32,7 @@ function applyVariant(rows, manifest, variantKey) {
   return { rows: out, changes, label: v.label || variantKey };
 }
 
-// Агрегация (ТЗ 8.1): склейка по "имя + цена"; одинаковое имя с разными ценами не склеивается.
+// Агрегация (Правила сборки, правило 1): склейка по "имя + цена"; одинаковое имя с разными ценами не склеивается.
 function aggregate(srcRows) {
   const order = [];
   const map = new Map();
@@ -56,7 +56,7 @@ function relatedTotal(manifest) {
   return FIXED.related_rows.reduce((s, r) => s + round2(r.qty * r.price), 0);
 }
 
-// Сборка документа: блоки реестра в маршруте ТЗ 5, арифметика, итоги, markdown-эмиттер.
+// Сборка документа: блоки реестра в маршруте ТЗ (Документ), арифметика, итоги, markdown-эмиттер.
 function assemble(manifest, variantKey) {
   const m = manifest;
   const brand = m.layout.brand;
@@ -91,7 +91,7 @@ function assemble(manifest, variantKey) {
   if (m.commerce.materials === null || m.commerce.materials === "") emptySlots.push("materials");
   if (!m.commerce.predoplata) emptySlots.push("predoplata");
 
-  // Цена (ТЗ 6.21а): строка-заголовок собирается из таблицы + сопутствующих + материалов.
+  // Цена (Документ 3.21а): строка-заголовок собирается из таблицы + сопутствующих + материалов.
   const priceLine = (m.commerce.price.kind === "estimate" ? "Ориентировочная стоимость по проекту составляет " : "Стоимость по проекту составляет ") + fmtMoney(price) + " € + 19% VAT.";
   const breakdownLine = "В том числе: работы — " + fmtMoney(worksSum) + " € (согласно таблице работ), черновые материалы — " + fmtMoney(materials) + " €.";
 
@@ -106,7 +106,7 @@ function assemble(manifest, variantKey) {
   md.push("marp: true");
   md.push('theme: "concept-note-involve"');
   md.push("paginate: true");
-  md.push("header: '<span style=\"display:block;font-size:18px;border-bottom:1.5px solid #ccc;padding-bottom:1mm\"><img src=\"../../meleshin-logo.png\" style=\"float:left;height:23px;object-fit:contain;margin-right:12px\"><span style=\"position:relative\"><b>" + brand + '</b> <span style="font-weight:400">| Коммерческое предложение. ' + esc(m.object.header_object) + "</span></span></span>'");
+  md.push("header: '<span style=\"display:block;font-size:18px;border-bottom:1.5px solid #ccc;padding-bottom:1mm\"><img src=\"../../meleshin-logo.png\" style=\"float:left;height:23px;object-fit:contain;margin-right:12px\"><span style=\"position:relative\"><b>" + brand + "</b> <span style=\"font-weight:400\">| Коммерческое предложение</span></span></span>'");
   md.push('footer: <a href="https://meleshin.com.cy" style="color: inherit; text-decoration: none;">' + brand + '</a> | <a href="tel:+35777788811" style="color: inherit; text-decoration: none;">+357 77 788811</a> | [order@meleshin.com.cy](mailto:order@meleshin.com.cy) | <a href="https://www.instagram.com/renovation_cyprus" style="color: inherit; text-decoration: none;">Instagram: renovation_cyprus</a>');
   md.push("---");
   md.push("");
@@ -145,7 +145,7 @@ function assemble(manifest, variantKey) {
     sections.push({ id: "sec-plans", slide: sections.length + 1, title: FIXED.plans_h2, blocks: ["plans"] });
   }
 
-  // --- Слайды: фото объекта, по 3 на слайд (ТЗ 6.7)
+  // --- Слайды: фото объекта, по 3 на слайд (Документ 3.7)
   if (has.photos) {
     const per = 3;
     for (let i = 0; i < m.images.photos.length; i += per) {
@@ -161,7 +161,7 @@ function assemble(manifest, variantKey) {
     }
   }
 
-  // --- Зона работ: заголовок + таблица с разбивкой по страницам (ТЗ 8.2)
+  // --- Зона работ: заголовок + таблица с разбивкой по страницам (Правила сборки, правило 2)
   const worksHeading = m.layout.works_heading || "Состав работ";
   const alignRow = "|:--:|:--|--:|--:|--:|--:|";
   const headerRow = "| " + FIXED.works_cols.join(" | ") + " |";
@@ -301,7 +301,7 @@ function assemble(manifest, variantKey) {
   intBlocks.push("interaction");
   sections.push({ id: "sec-interaction", slide: sections.length + 1, title: FIXED.interaction_h2, blocks: intBlocks });
 
-  // --- payment (a → h, ТЗ 6.21)
+  // --- payment (a → h, Документ 3.21)
   md.push("");
   md.push("---");
   md.push("");
@@ -344,7 +344,7 @@ function assemble(manifest, variantKey) {
     sections.push({ id: "sec-gallery", slide: sections.length + 1, title: "Галерея", blocks: ["gallery"] });
   }
 
-  // Имя файла (ТЗ 10): YYNN допустимо в имени файла, запрещено в клиентских полях.
+  // Имя файла (Маркдаун): YYNN допустимо в имени файла, запрещено в клиентских полях.
   let filename = m.object.date_iso + "-meleshin-" + m.object.folder + "-BP";
   if (variantKey !== "base") filename += "-" + variantKey;
   if (emptySlots.length > 0) filename += "-v1";
@@ -360,7 +360,7 @@ function assemble(manifest, variantKey) {
 }
 
 /* ============================================================
-   Ворота (ТЗ 9) — сборка не завершена, пока не пройдены все
+   Ворота (Правила сборки, раздел 3) — сборка не завершена, пока не пройдены все
    ============================================================ */
 function alphaTokens(text) {
   return text.toLowerCase().replace(/\d+/g, " ").replace(/[^a-zа-яё²%]/g, " ").split(/\s+/).filter(Boolean);
@@ -397,7 +397,7 @@ function runGates(a, manifest, prev) {
   const mandatory = ["chrome", "manager", "title", "subtitle", "description", "works_head", "works_table", "not_included", "interaction", "payment"];
   const present = new Set(a.sections.flatMap((s) => s.blocks));
   const missing = mandatory.filter((b) => !present.has(b));
-  g.push({ n: 5, title: "Маршрут: зоны ТЗ 5, обязательные блоки присутствуют", status: missing.length ? "fail" : "pass", detail: missing.length ? "отсутствуют: " + missing.join(", ") : a.sections.length + " слайдов, зоны в порядке ТЗ 5" });
+  g.push({ n: 5, title: "Маршрут: зоны ТЗ (Документ), обязательные блоки присутствуют", status: missing.length ? "fail" : "pass", detail: missing.length ? "отсутствуют: " + missing.join(", ") : a.sections.length + " слайдов, зоны в порядке" });
 
   // 6. ___ только в -v1; деньги всегда 2 знака
   const moneyBad = (a.md.match(/\d[ \d]*,\d? €/g) || []).filter((x) => !/,\d{2} €/.test(x));
@@ -407,11 +407,11 @@ function runGates(a, manifest, prev) {
 
   // 7. YYNN не в клиентских полях
   const yynn = (m.object.folder.match(/^\d{4}/) || [""])[0];
-  const clientFields = { header_object: m.object.header_object, subtitle: m.object.subtitle, opening: m.object.opening || "", field_object: m.object.field_object, works_heading: m.layout.works_heading };
+  const clientFields = { subtitle: m.object.subtitle, opening: m.object.opening || "", field_object: m.object.field_object, works_heading: m.layout.works_heading };
   const leak = Object.entries(clientFields).filter(([, v]) => yynn && String(v).includes(yynn)).map(([k]) => k);
   g.push({ n: 7, title: "YYNN не попадает в клиентские поля", status: leak.length ? "fail" : "pass", detail: leak.length ? "утечка: " + leak.join(", ") : yynn + " — только в имени папки и файла" });
 
-  // 8. Расхождение — факт, не правка значения (принцип, ТЗ 9.8)
+  // 8. Расхождение — факт, не правка значения (принцип, ворота 8)
   g.push({ n: 8, title: "Расхождение сообщается фактом, значение не подгоняется", status: "pass", detail: "принцип машины: ворота не правят данные" });
 
   // 9. Повторы: заголовки уникальны, метки полей не конфликтуют, 5-словных повторов между блоками нет
@@ -434,7 +434,7 @@ function repetitionScan(a, manifest) {
   const m = manifest;
 
   // Сканируются только блоки, реально вошедшие в документ: org_process и also_included
-  // взаимоисключающи (ТЗ 6.13) и вместе в сборке не встречаются.
+  // взаимоисключающи (Документ 3.13) и вместе в сборке не встречаются.
   const blockTexts = [
     { id: "subtitle", text: m.object.subtitle, on: true },
     { id: "description", text: [m.object.opening, m.object.field_object, m.object.field_zone, m.object.field_materials].join(" "), on: true },
@@ -684,13 +684,13 @@ function renderReport(a) {
     '<div class="rep-line">Слайдов: ' + a.sections.length + " · строк таблицы: " + a.rows.length + " · страницы таблицы: " + a.pages + " (" + a.rows.length + " строк, по 12 на страницу, заголовок повторяется)</div>" +
     '<div class="rep-line">Вариант: ' + a.variantLabel + (vc.replaced.length ? " · заменено строк: " + vc.replaced.length : "") + (vc.dropped.length ? " · исключено строк: " + vc.dropped.length : "") + "</div>" +
     '<div class="rep-line">Источники: карточка <span class="mono">' + esc(m.sources.card) + "</span>; смета — " + esc(m.sources.estimate) + "</div></div>" +
-    '<div class="rep-card"><div class="rep-h">Агрегация (ТЗ 8.1)</div>' + (merged || "<div>склеек нет</div>") + (split ? '<div class="rep-sub">Не склеено — одна работа, разные цены:</div>' + split : "") + "</div>" +
+    '<div class="rep-card"><div class="rep-h">Агрегация</div>' + (merged || "<div>склеек нет</div>") + (split ? '<div class="rep-sub">Не склеено — одна работа, разные цены:</div>' + split : "") + "</div>" +
     '<div class="rep-card"><div class="rep-h">Арифметика</div><div class="rep-line">Итого по таблице: <b>' + fmtMoney(a.itogo) + " €</b></div>" +
     '<div class="rep-line">Сопутствующие: ' + fmtMoney(a.relTotal) + " € · черновые материалы: " + fmtMoney(a.materials) + " €</div>" +
     '<div class="rep-line">Строка цены: <b>' + fmtMoney(a.itogo) + " + " + fmtMoney(a.relTotal) + " + " + fmtMoney(a.materials) + " = " + fmtMoney(a.price) + " €</b> + 19% VAT</div></div>" +
     '<div class="rep-card"><div class="rep-h">Блоки</div><div class="rep-line">Использованы (' + a.sections.flatMap((x) => x.blocks).length + "): " + a.sections.flatMap((x) => x.blocks).join(", ") + "</div>" +
     '<div class="rep-line">Отключены: ' + (offBlocks(a).join(", ") || "—") + "</div></div>" +
-    '<div class="rep-card gates"><div class="rep-h">Ворота 1–10 (ТЗ 9)</div>' + a.gates.map(gateRow).join("") + "</div>" +
+    '<div class="rep-card gates"><div class="rep-h">Ворота 1–10</div>' + a.gates.map(gateRow).join("") + "</div>" +
     "</div>"
   );
 }
@@ -707,8 +707,7 @@ function renderManifest() {
     '<div class="mf-grid">' +
     '<div class="mf-card"><div class="mf-h">Объект</div>' +
     f("Имя папки / YYNN (внутреннее)", '<input data-path="object.folder" value="' + esc(m.object.folder) + '">') +
-    f("Клиентское имя объекта (шапка)", '<input data-path="object.header_object" value="' + esc(m.object.header_object) + '">') +
-    f("Подзаголовок (слот 6.4)", '<input data-path="object.subtitle" value="' + esc(m.object.subtitle) + '">') +
+    f("Подзаголовок (Документ 3.4)", '<input data-path="object.subtitle" value="' + esc(m.object.subtitle) + '">') +
     f("Дата отправки", '<input data-path="object.date" value="' + esc(m.object.date) + '">') +
     "</div>" +
     '<div class="mf-card"><div class="mf-h">Коммерция — значения Ивана</div>' +
@@ -733,7 +732,7 @@ function renderManifest() {
     f("4. Менеджер", '<select data-path="object.manager_top"><option value="1"' + (m.object.manager_top ? " selected" : "") + '>сверху, перед заголовком</option><option value="0"' + (!m.object.manager_top ? " selected" : "") + ">снизу</option></select>") +
     f("5. Срок действия", '<input value="14 дней — фиксированная строка" disabled>') +
     "</div>" +
-    '<div class="mf-card mf-wide"><div class="mf-h">Манифест (ТЗ 7) — указатели на источники</div><pre class="mf-pre">object:    { folder: ' + esc(m.object.folder) + ', header_object: "' + esc(m.object.header_object) + '", language: ' + m.object.language + ", date: " + esc(m.object.date) + " }\n" +
+    '<div class="mf-card mf-wide"><div class="mf-h">Манифест (ТЗ) — указатели на источники</div><pre class="mf-pre">object:    { folder: ' + esc(m.object.folder) + ', language: ' + m.object.language + ", date: " + esc(m.object.date) + " }\n" +
     "sources:\n  card:     " + esc(m.sources.card) + "\n  estimate: " + esc(m.sources.estimate) + "\n" +
     "images:   { hero, plans: [" + m.images.plans.length + "], photos: [" + m.images.photos.length + "], gallery: [" + m.images.gallery.length + "] }\n" +
     "commerce: { price: { kind: " + m.commerce.price.kind + " }, materials: " + fmtMoney(m.commerce.materials) + ",\n            payments: [предоплата " + fmtMoney(m.commerce.predoplata) + ", второй " + fmtMoney(m.commerce.second_payment.amount) + "], term: " + m.commerce.term.value + " " + esc(m.commerce.term.unit) + " }\n" +
@@ -755,7 +754,7 @@ function renderHero(a) {
     '<div class="d3-hero"><div class="gallery"><img src="' + m.images.hero + '" alt="">' +
     '<div class="ribbon"><span class="status-pill ' + (st === "agreed" ? "success" : "warn") + '"><span class="dot"></span>' + (st === "agreed" ? FIXED.status_agreed : FIXED.status_sent) + " · " + esc(m.object.date) + '</span><span class="status-pill edition">Вариант: ' + a.variantLabel + "</span></div>" +
     '<div class="thumbs">' + [m.images.hero].concat(m.images.gallery.slice(0, 3)).map((p, i) => '<span class="' + (i === 0 ? "active" : "") + '"><img src="' + thumb(p) + '" alt=""></span>').join("") + "</div></div>" +
-    '<div class="summary"><div class="proj-label">Коммерческое предложение · ' + esc(m.object.header_object) + "</div>" +
+    '<div class="summary"><div class="proj-label">Коммерческое предложение</div>' +
     "<h2>" + esc(subtitleShort(m)) + "</h2>" +
     '<div class="addr">' + esc(m.object.field_object) + "</div>" +
     '<div class="total"><div class="lbl">Стоимость по проекту</div><div class="v tnum">' + fmtMoney(a.price) + " €</div>" +
